@@ -1,0 +1,94 @@
+body{
+	margin: 0;
+	box-sizing: border-box;
+	background-color: #dddddd;
+}
+
+h1,h2,h3,h4,h5,h6{
+	margin: 0px;
+}
+
+.app{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.calendar {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    width: 100%;
+	max-width: 360px;
+	display: block;
+	margin: 10px auto;
+	background-color: #333333;
+	color: #ffffff;
+	padding: 20px;
+	border-radius: 10px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 700;
+}
+
+.dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.date {
+    text-align: center;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.date:hover {
+    background-color: #222222;
+	border-radius: 5px;
+}
+
+.today {
+    background-color: #222222;
+	border-radius: 5px;
+    font-weight: bold;
+}
+
+#prevMonth, #nextMonth{
+	background-color: #222222;
+	border-radius: 5px;
+	color: #ffffff;
+	border: none;
+	padding: 5px 10px;
+}
+
+.selected-date-info {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #333333;
+    color: #ffffff;
+    border-radius: 10px;
+    text-align: center;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.note-input {
+	width: 94%;
+	margin-top: 10px;
+	border-radius: 5px;
+	background-color: #222222;
+	color: #ffffff;
+	outline: none;
+	border: none;
+	padding: 10px;
+}

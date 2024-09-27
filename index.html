@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<div class="app" id="app">
+		<div id="calendar" class="calendar">
+			<div class="calendar-header">
+				<button id="prevMonth">&lt;</button>
+				<h2 id="currentMonth"></h2>
+				<button id="nextMonth">&gt;</button>
+			</div>
+			<div id="weekdays" class="weekdays"></div>
+			<div id="dates" class="dates"></div>
+		</div>
+		<div id="selectedDateInfo" class="selected-date-info"></div>
+	</div>
+    <script src="script.js" type="module"></script>
+</body>
+</html>
