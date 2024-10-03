@@ -1,26 +1,9 @@
-body{
-	margin: 0;
-	box-sizing: border-box;
-	background-color: #dddddd;
-}
-
-h1,h2,h3,h4,h5,h6{
-	margin: 0px;
-}
-
-.app{
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
-
 .calendar {
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     width: 100%;
-	max-width: 360px;
+	max-width: 350px;
 	display: block;
-	margin: 10px auto;
+	margin: 0px auto;
 	background-color: #333333;
 	color: #ffffff;
 	padding: 20px;
@@ -39,6 +22,7 @@ h1,h2,h3,h4,h5,h6{
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
     font-weight: 700;
+	margin-bottom: 10px;
 }
 
 .dates {
