@@ -1,0 +1,45 @@
+
+.auth-form {
+    max-width: 300px;
+    margin: 50px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form h2 {
+    text-align: center;
+    color: #333;
+}
+
+.auth-form .form-group {
+    margin-bottom: 20px;
+}
+
+.auth-form .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.auth-form .form-group input {
+    width: 94%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 10px;
+    background-color: #333333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-login:hover {
+    background-color: #222222;
+}

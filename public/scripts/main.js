@@ -1,6 +1,9 @@
-import { Calendar } from './calendar.js';
-import { EventManager } from './meroManager.js';
-import { ClientManager } from './clientManager.js';
+import { Calendar } from './calendar/calendar.js';
+import { EventManager } from './events/eventManager.js';
+// import { EventList } from './events/eventList.js';
+import { ClientManager } from './clients/clientManager.js';
+// import { ClientList } from './clients/clientList.js';
+import { Auth } from './auth/auth.js';
 
 const root = document.getElementById('app');
 const menuContainer = document.createElement('aside');
@@ -20,10 +23,18 @@ const config = {
             id: 'event-manager',
             text: 'Менеджер мероприятий',
         },
+		eventList: {
+			id: 'event-list',
+			text: 'Список мероприятий',
+		},
         clientManager: {
             id: 'client-manager',
             text: 'Менеджер клиентов',
         },
+		clientList: {
+			id: 'client-list',
+			text: 'Список клиентов',
+		},
     },
 };
 
@@ -38,6 +49,11 @@ Object.entries(config.menu).forEach(([key, { id, text }]) => {
 
 function renderContent(sectionId) {
     pageContainer.innerHTML = '';
+
+    if (!Auth.isAuthenticated() && sectionId !== 'login') {
+        sectionId = 'login';
+    }
+
     switch(sectionId) {
         case 'calendar': {
             const calendarContainer = document.createElement('div');
@@ -53,6 +69,13 @@ function renderContent(sectionId) {
             new EventManager(eventManagerContainer);
             break;
         }
+		// case 'event-list': {
+		// 	const eventListContainer = document.createElement('div');
+		// 	eventListContainer.id = 'event-list-container';
+		// 	pageContainer.appendChild(eventListContainer);
+		// 	new EventList(eventListContainer);
+		// 	break;
+		// }
         case 'client-manager': {
             const clientManagerContainer = document.createElement('div');
             clientManagerContainer.id = 'client-manager-container';
@@ -60,8 +83,32 @@ function renderContent(sectionId) {
             new ClientManager(clientManagerContainer);
             break;
         }
+		// case 'client-list': {
+		// 	const clientListContainer = document.createElement('div');
+		// 	clientListContainer.id = 'client-list-container';
+		// 	pageContainer.appendChild(clientListContainer);
+		// 	new ClientList(clientListContainer);
+		// 	break;
+		// }
+		case 'login': {
+			const authContainer = document.createElement('div');
+			authContainer.id = 'auth-container';
+			pageContainer.appendChild(authContainer);
+			new Auth(authContainer, onAuthStateChange);
+			break;
+		}
         default:
             pageContainer.innerHTML = '<h1>404</h1><p>Страница не найдена</p>';
+    }
+}
+
+function onAuthStateChange(isAuthenticated) {
+    if (isAuthenticated) {
+        menuContainer.style.display = 'block';
+        renderContent('calendar');
+    } else {
+        menuContainer.style.display = 'none';
+        renderContent('login');
     }
 }
 
@@ -74,5 +121,10 @@ document.querySelectorAll('.menu-container a').forEach(link => {
 });
 
 window.addEventListener('load', () => {
-    renderContent('calendar');
+    menuContainer.style.display = 'none';
+    if (Auth.isAuthenticated()) {
+        onAuthStateChange(true);
+    } else {
+        renderContent('login');
+    }
 });

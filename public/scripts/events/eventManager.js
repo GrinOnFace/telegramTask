@@ -1,7 +1,6 @@
 export class EventManager {
     constructor(container) {
         this.container = container;
-        this.events = [];
         this.render();
         this.attachEventListeners();
     }
@@ -43,15 +42,6 @@ export class EventManager {
     }
 
     addEvent(name, date) {
-        const event = { name, date };
-        this.events.push(event);
-        this.renderEvent(event);
-    }
-
-    renderEvent(event) {
-        const eventElement = document.createElement('div');
-        eventElement.classList.add('event-item');
-        eventElement.innerHTML = `<strong>${event.name}</strong> - ${event.date}`;
-        this.eventList.appendChild(eventElement);
+		//Здесь ручка добавления мероприятия
     }
 }

@@ -1,7 +1,6 @@
 export class ClientManager {
     constructor(container) {
         this.container = container;
-        this.clients = [];
         this.render();
         this.attachEventListeners();
     }
@@ -53,18 +52,6 @@ export class ClientManager {
     }
 
     addClient(firstName, lastName, deposit, date) {
-        const client = { firstName, lastName, deposit, date };
-        this.clients.push(client);
-        this.renderClient(client);
-    }
-
-    renderClient(client) {
-        const clientElement = document.createElement('div');
-        clientElement.classList.add('client-item');
-        clientElement.innerHTML = `
-            <strong>${client.lastName} ${client.firstName}</strong> - 
-            Депозит: ${client.deposit} руб., Дата: ${client.date}
-        `;
-        this.clientList.appendChild(clientElement);
+		//Здесь ручка добавления клиента
     }
 }
