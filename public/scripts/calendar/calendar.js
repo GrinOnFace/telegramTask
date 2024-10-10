@@ -4,6 +4,7 @@ export class Calendar {
         this.currentDate = new Date();
         this.weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
         this.months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        this.events = []; 
 
         this.createCalendarStructure();
         this.addEventListeners();
@@ -30,11 +31,6 @@ export class Calendar {
         this.weekdaysElement = this.container.querySelector('#weekdays');
         this.datesElement = this.container.querySelector('#dates');
         this.selectedDateInfoElement = this.container.querySelector('#selectedDateInfo');
-
-        this.noteInputElement = document.createElement('input');
-        this.noteInputElement.classList.add('note-input');
-        this.noteInputElement.type = 'text';
-        this.noteInputElement.placeholder = 'Введите заметку для выбранного дня';
     }
 
     addEventListeners() {
@@ -51,7 +47,6 @@ export class Calendar {
 
     renderSelectedDateInfo() {
         this.selectedDateInfoElement.textContent = 'День не выбран';
-        this.noteInputElement.style.display = 'none';
     }
 
     renderCurrentMonth() {
@@ -100,12 +95,7 @@ export class Calendar {
         const selectedDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day);
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = selectedDate.toLocaleDateString('ru-RU', options);
-        this.selectedDateInfoElement.innerHTML = `Выбранная дата: ${formattedDate}<br>`;
-
-        this.selectedDateInfoElement.appendChild(this.noteInputElement);
-        this.noteInputElement.value = '';
-        this.noteInputElement.style.display = 'block';
-        this.noteInputElement.focus();
+        this.selectedDateInfoElement.textContent = `Выбранная дата: ${formattedDate}`;
     }
 
     changeMonth(change) {

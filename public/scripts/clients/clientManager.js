@@ -48,10 +48,33 @@ export class ClientManager {
         const date = this.container.querySelector('#date').value;
         
         this.addClient(firstName, lastName, deposit, date);
-        this.clientForm.reset();
     }
 
-    addClient(firstName, lastName, deposit, date) {
-		//Здесь ручка добавления клиента
+    async addClient(firstName, lastName, deposit, date) {
+        try {
+            const response = await fetch('http://localhost:3000/api/v1/clients', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: firstName,
+                    surname: lastName,
+                    deposit: deposit,
+                    date: date
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Клиент успешно добавлен:', data);
+                this.clientForm.reset();
+            } else {
+                console.error('Ошибка при добавлении клиента:', data);
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке запроса:', error);
+        }
     }
 }

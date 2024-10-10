@@ -1,8 +1,8 @@
 import { Calendar } from './calendar/calendar.js';
 import { EventManager } from './events/eventManager.js';
-// import { EventList } from './events/eventList.js';
+import { EventList } from './events/eventList.js';
 import { ClientManager } from './clients/clientManager.js';
-// import { ClientList } from './clients/clientList.js';
+import { ClientList } from './clients/clientList.js';
 import { Auth } from './auth/auth.js';
 
 const root = document.getElementById('app');
@@ -69,13 +69,13 @@ function renderContent(sectionId) {
             new EventManager(eventManagerContainer);
             break;
         }
-		// case 'event-list': {
-		// 	const eventListContainer = document.createElement('div');
-		// 	eventListContainer.id = 'event-list-container';
-		// 	pageContainer.appendChild(eventListContainer);
-		// 	new EventList(eventListContainer);
-		// 	break;
-		// }
+		case 'event-list': {
+			const eventListContainer = document.createElement('div');
+			eventListContainer.id = 'event-list-container';
+			pageContainer.appendChild(eventListContainer);
+			new EventList(eventListContainer);
+			break;
+		}
         case 'client-manager': {
             const clientManagerContainer = document.createElement('div');
             clientManagerContainer.id = 'client-manager-container';
@@ -83,13 +83,13 @@ function renderContent(sectionId) {
             new ClientManager(clientManagerContainer);
             break;
         }
-		// case 'client-list': {
-		// 	const clientListContainer = document.createElement('div');
-		// 	clientListContainer.id = 'client-list-container';
-		// 	pageContainer.appendChild(clientListContainer);
-		// 	new ClientList(clientListContainer);
-		// 	break;
-		// }
+		case 'client-list': {
+			const clientListContainer = document.createElement('div');
+			clientListContainer.id = 'client-list-container';
+			pageContainer.appendChild(clientListContainer);
+			new ClientList(clientListContainer);
+			break;
+		}
 		case 'login': {
 			const authContainer = document.createElement('div');
 			authContainer.id = 'auth-container';

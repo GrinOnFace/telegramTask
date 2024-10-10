@@ -1,0 +1,153 @@
+.client-list {
+    font-family: Arial, sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.client-list__title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.client-list__table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.client-list__table-head {
+    background-color: #f4f4f4;
+}
+
+.client-list__table-header {
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.client-list__table-body {
+    background-color: #fff;
+}
+
+.client-list__table-row {
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.client-list__table-row:hover {
+    background-color: #f9f9f9;
+}
+
+.client-list__table-row--even {
+    background-color: #f8f8f8;
+}
+
+.client-list__table-row--odd {
+    background-color: #fff;
+}
+
+.client-list__table-cell {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.client-list__details {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+    display: none;
+}
+
+.client-list__details--active {
+    display: block;
+}
+
+.client-list__details-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.client-list__details p {
+    margin: 5px 0;
+}
+
+.delete-client {
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #333333;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.delete-client:hover {
+    background-color: #222222;
+}
+
+/* Адаптивные стили */
+@media screen and (max-width: 768px) {
+    .client-list {
+        padding: 10px;
+    }
+
+    .client-list__title {
+        font-size: 20px;
+    }
+
+    .client-list__table {
+        font-size: 14px;
+    }
+
+    .client-list__table-header {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    .client-list__table-cell {
+        padding: 10px;
+    }
+
+    .client-list__details {
+        padding: 15px;
+    }
+
+    .client-list__details-title {
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .client-list__table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .client-list__table-header,
+    .client-list__table-cell {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .client-list__details {
+        padding: 10px;
+    }
+
+    .client-list__details-title {
+        font-size: 14px;
+    }
+
+    .delete-client {
+        padding: 8px;
+        font-size: 12px;
+    }
+}
