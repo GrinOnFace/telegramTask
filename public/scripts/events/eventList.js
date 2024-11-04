@@ -53,7 +53,7 @@ export class EventList {
             row.classList.add(index % 2 === 0 ? 'event-list__table-row--even' : 'event-list__table-row--odd');
             row.innerHTML = `
                 <td class="event-list__table-cell">${event.name}</td>
-                <td class="event-list__table-cell">${event.date}</td>
+                <td class="event-list__table-cell">${event.date.year}.${event.date.month}.${event.date.day}</td>
                 <td class="event-list__table-cell">${event.clients.length}</td>
                 <td class="event-list__table-cell">${event.expenses.length}</td>
                 <td class="event-list__table-cell">
@@ -110,7 +110,7 @@ export class EventList {
             <h2 class="event-list__details-title">Детали мероприятия</h2>
             <p><strong>ID:</strong> ${event.id}</p>
             <p><strong>Название:</strong> ${event.name}</p>
-            <p><strong>Дата:</strong> ${event.date}</p>
+            <p><strong>Дата:</strong> ${event.date.year}.${event.date.month}.${event.date.day}</p>
             <h3>Клиенты:</h3>
             <ul>${clientsList.join('') || '<li>Нет клиентов</li>'}</ul>
             <h3>Расходы:</h3>
@@ -118,6 +118,11 @@ export class EventList {
             <h3>Добавить клиента:</h3>
             <input type="text" id="clientIdInput" placeholder="ID клиента" />
             <button id="addClientButton" data-event-id="${event.id}">Добавить клиента</button>
+            <h3>Добавить расход:</h3>
+            <input type="text" id="expenseName" placeholder="Название расхода" />
+            <input type="date" id="expenseDate" />
+            <input type="number" id="expenseSum" placeholder="Сумма" step="0.01" />
+            <button id="addExpenseButton" data-event-id="${event.id}">Добавить расход</button>
         `;
         this.eventDetails.classList.add('event-list__details--active');
 
@@ -132,6 +137,13 @@ export class EventList {
         this.eventDetails.querySelector('#addClientButton').addEventListener('click', () => {
             const clientId = document.getElementById('clientIdInput').value;
             this.addClientToEvent(event.id, clientId);
+        });
+
+        this.eventDetails.querySelector('#addExpenseButton').addEventListener('click', () => {
+            const expenseName = document.getElementById('expenseName').value;
+            const expenseDate = document.getElementById('expenseDate').value;
+            const expenseSum = document.getElementById('expenseSum').value;
+            this.addExpenseToEvent(event.id, expenseName, expenseDate, expenseSum);
         });
 
         setTimeout(() => {
@@ -157,6 +169,28 @@ export class EventList {
             }
         } catch (error) {
             console.error('Ошибка при отправке запроса на добавление клиента в мероприятие:', error);
+        }
+    }
+
+    async addExpenseToEvent(eventId, name, date, sum) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/v1/events/${eventId}/expenses`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, date, sum }),
+            });
+
+            if (response.ok) {
+                console.log(`Расход успешно добавлен в мероприятие с ID ${eventId}.`);
+                await this.fetchEvents();
+                this.showEventDetails(this.events.find(event => event.id === eventId));
+            } else {
+                console.error('Ошибка при добавлении расхода в мероприятие:', await response.json());
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке запроса на добавление расхода в мероприятие:', error);
         }
     }
 

@@ -8,7 +8,7 @@
 .event-list__title {
     font-size: 24px;
     color: #333;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     text-align: center;
 }
 
@@ -79,6 +79,12 @@
     margin: 5px 0;
 }
 
+.event-list__details h3 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    color: #444;
+}
+
 .event-list__details ul {
     list-style-type: none;
     padding-left: 0;
@@ -86,6 +92,42 @@
 
 .event-list__details li {
     margin-bottom: 5px;
+}
+
+.event-list__details input[type="text"],
+.event-list__details input[type="date"],
+.event-list__details input[type="number"] {
+	border: none;
+	outline: none;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.event-list__details button {
+    padding: 10px 15px;
+    background-color: #333333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.event-list__details button:hover {
+    background-color: #222222;
+}
+
+.event-list__details .client-link {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.event-list__details .client-link:hover {
+    text-decoration: underline;
 }
 
 .modal {
@@ -184,6 +226,11 @@
 
     .event-list__details-title {
         font-size: 16px;
+    }
+
+    .event-list__details button {
+        width: 100%;
+        margin-bottom: 10px;
     }
 
     .modal-content {

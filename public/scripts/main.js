@@ -4,6 +4,9 @@ import { EventList } from './events/eventList.js';
 import { ClientManager } from './clients/clientManager.js';
 import { ClientList } from './clients/clientList.js';
 import { Auth } from './auth/auth.js';
+import { ExpenseManager } from './expense/expenseManager.js';
+import { ExpenseList } from './expense/expenseList.js';
+import { EarningTable } from './earning/earningTable.js';
 
 const root = document.getElementById('app');
 const menuContainer = document.createElement('aside');
@@ -34,6 +37,18 @@ const config = {
 		clientList: {
 			id: 'client-list',
 			text: 'Список клиентов',
+		},
+        expenseManager: {
+            id: 'expense-manager',
+            text: 'Доходы и расходы',
+        },
+        expenseList: {
+            id: 'expense-list',
+            text: 'Список доходов и расходов',
+        },
+		earningTable: {
+			id: 'earning-table',
+			text: 'Сводная таблица',
 		},
     },
 };
@@ -90,6 +105,27 @@ function renderContent(sectionId) {
 			new ClientList(clientListContainer);
 			break;
 		}
+		case 'expense-manager': {
+			const expenseManagerContainer = document.createElement('div');
+			expenseManagerContainer.id = 'expense-manager-container';
+			pageContainer.appendChild(expenseManagerContainer);
+			new ExpenseManager(expenseManagerContainer);
+			break;
+		}
+		case 'expense-list': {
+			const expenseListContainer = document.createElement('div');
+			expenseListContainer.id = 'expense-list-container';
+			pageContainer.appendChild(expenseListContainer);
+			new ExpenseList(expenseListContainer);
+			break;
+		}
+		case 'earning-table': {
+			const earningTableContainer = document.createElement('div');
+			earningTableContainer.id = 'earning-table-container';
+			pageContainer.appendChild(earningTableContainer);
+			new EarningTable(earningTableContainer);
+			break;
+		}
 		case 'login': {
 			const authContainer = document.createElement('div');
 			authContainer.id = 'auth-container';
@@ -105,7 +141,7 @@ function renderContent(sectionId) {
 function onAuthStateChange(isAuthenticated) {
     if (isAuthenticated) {
         menuContainer.style.display = 'block';
-        renderContent('calendar');
+        renderContent('event-list');
     } else {
         menuContainer.style.display = 'none';
         renderContent('login');

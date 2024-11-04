@@ -6,7 +6,7 @@
 }
 
 .client-list__title {
-    font-size: 24px;
+    font-size: 30px;
     color: #333;
     margin-bottom: 20px;
     text-align: center;
@@ -93,7 +93,6 @@
     background-color: #222222;
 }
 
-/* Адаптивные стили */
 @media screen and (max-width: 768px) {
     .client-list {
         padding: 10px;

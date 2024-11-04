@@ -1,0 +1,96 @@
+.earning-table {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.earning-table__title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.date-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.date-selector input,
+.date-selector select,
+.date-selector button {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.date-selector button {
+    background-color: #333333;
+    color: white;
+    cursor: pointer;
+}
+
+.date-selector button:hover {
+    background-color: #222222;
+}
+
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.summary-table th,
+.summary-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.summary-table th {
+    background-color: #f4f4f4;
+}
+
+.total-row {
+    background-color: #e8ffe8;
+    font-weight: bold;
+}
+
+.additional-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.expenses-section,
+.profit-section,
+.deposit-section,
+.tax-section,
+.total-checkout {
+    background-color: #f4f4f4;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.total-checkout {
+    background-color: #e8ffe8;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+@media screen and (max-width: 768px) {
+    .date-selector {
+        flex-direction: column;
+    }
+
+    .summary-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .additional-info {
+        grid-template-columns: 1fr;
+    }
+} 

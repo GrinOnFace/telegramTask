@@ -1,0 +1,150 @@
+.expense-manager, .expense-list {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.expense-manager__title, .expense-form__title, .expense-list__title {
+    text-align: center;
+	margin: 15px 0px;
+	font-size: 30px;
+}
+
+.expense-forms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.expense-form {
+    flex: 1 1 300px;
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.expense-form h2 {
+    margin-top: 0;
+}
+
+.expense-form input {
+    width: 94%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.expense-form button{
+	width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.expense-form button {
+    background-color: #333333;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.expense-form button:hover {
+    background-color: #222222;
+}
+
+.date-selector {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.date-selector input, .date-selector select, .date-selector button {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.date-selector button {
+    background-color: #333333;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.date-selector button:hover {
+    background-color: #222222;
+}
+
+.expense-tables {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.expense-table {
+    flex: 1 1 calc(33.333% - 20px);
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.expense-table h2 {
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.expense-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.expense-table th, .expense-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.expense-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+}
+
+.expense-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.expense-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+@media (max-width: 1024px) {
+    .expense-table {
+        flex: 1 1 calc(50% - 20px);
+    }
+}
+
+@media (max-width: 768px) {
+    .date-selector {
+        flex-direction: column;
+    }
+
+    .date-selector input,
+    .date-selector select,
+    .date-selector button {
+        width: 100%;
+    }
+
+    .expense-table {
+        flex: 1 1 100%;
+    }
+}
