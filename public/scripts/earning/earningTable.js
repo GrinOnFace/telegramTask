@@ -90,27 +90,62 @@ export class EarningTable {
     }
 
     displayTableData(data) {
-        this.container.querySelector('#totalClients').textContent = data.amountOfClients;
-        this.container.querySelector('#totalNewClients').textContent = data.amountOfNewClients;
-        this.container.querySelector('#totalIncome').textContent = data.incomeSum;
-        this.container.querySelector('#totalExpenses').textContent = data.expensesSum;
-        this.container.querySelector('#totalProfit').textContent = data.profitSum;
-        this.container.querySelector('#totalCH').textContent = data.totalCh;
+        const eventsTableBody = this.container.querySelector('#eventsTableBody');
+        eventsTableBody.innerHTML = data.data.events.map((event, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${event.name}</td>
+                <td>${event.amountOfClients}</td>
+                <td>${event.amountOfNewClients}</td>
+                <td>${event.totalIncome}</td>
+                <td>${event.totalExpenses}</td>
+                <td>${event.profit}</td>
+                <td>${event.ch || 0}</td>
+            </tr>
+        `).join('');
 
-        this.container.querySelector('#promotionExpenses').textContent = data.promotionExpensesSum;
-        this.container.querySelector('#orgExpenses').textContent = data.orgExpensesSum;
-        this.container.querySelector('#investitionExpenses').textContent = data.investitionExpensesSum;
+        if (data.data.incomes && data.data.incomes.length > 0) {
+            data.data.incomes.forEach((income, index) => {
+                eventsTableBody.innerHTML += `
+                    <tr>
+                        <td>${data.data.events.length + index + 1}</td>
+                        <td>Дополнительный доход: ${income.name}</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>${income.sum}</td>
+                        <td>-</td>
+                    </tr>
+                `;
+            });
+        }
 
-        this.container.querySelector('#netIncome').textContent = data.netIncome;
-        this.container.querySelector('#humanActivities').textContent = data.humanActivities;
-        this.container.querySelector('#humanPayedActivities').textContent = data.humanPayedActivities || '0';
-        this.container.querySelector('#averageExtraChargeCommon').textContent = data.averageExtraChargeCommon;
-        this.container.querySelector('#averageExtraChargePayed').textContent = data.averageExtraChargePayed || '0';
+        const totalReport = data.data.totalReport;
+        
+        this.container.querySelector('#totalClients').textContent = data.data.totalReport.amountOfClients;
+        this.container.querySelector('#totalNewClients').textContent = data.data.totalReport.amountOfNewClients;
+        this.container.querySelector('#totalIncome').textContent = data.data.totalReport.incomeSum;
+        this.container.querySelector('#totalExpenses').textContent = data.data.totalReport.expensesSum;
+        this.container.querySelector('#totalProfit').textContent = data.data.totalReport.profitSum;
+        this.container.querySelector('#totalCH').textContent = data.data.totalReport.totalCh.toFixed(1);
 
-        this.container.querySelector('#depositIn').textContent = data.depositIn;
-        this.container.querySelector('#depositOut').textContent = data.depositOut;
-        this.container.querySelector('#tax').textContent = data.tax;
+        this.container.querySelector('#promotionExpenses').textContent = totalReport.promotionExpensesSum;
+        this.container.querySelector('#orgExpenses').textContent = totalReport.orgExpensesSum;
+        this.container.querySelector('#investitionExpenses').textContent = totalReport.investitionExpensesSum;
 
-        this.container.querySelector('#totalCheckout').textContent = data.totalCheckout;
+        this.container.querySelector('#depositIn').textContent = totalReport.depositIn;
+        this.container.querySelector('#depositOut').textContent = totalReport.depositOut;
+
+        this.container.querySelector('#tax').textContent = totalReport.tax;
+
+        const checkoutElement = this.container.querySelector('#totalCheckout');
+        checkoutElement.textContent = totalReport.totalCheckout;
+        
+        if (totalReport.totalCheckout < 0) {
+            checkoutElement.classList.add('negative-value');
+        } else if (totalReport.totalCheckout > 0) {
+            checkoutElement.classList.add('positive-value');
+        }
     }
 } 

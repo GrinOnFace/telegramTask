@@ -16,7 +16,6 @@ export class ClientList {
                             <th class="client-list__table-header">Имя</th>
                             <th class="client-list__table-header">Фамилия</th>
                             <th class="client-list__table-header">Дата</th>
-                            <th class="client-list__table-header">Депозит</th>
                             <th class="client-list__table-header">Действия</th>
                         </tr>
                     </thead>
@@ -54,8 +53,7 @@ export class ClientList {
             row.innerHTML = `
                 <td class="client-list__table-cell">${client.name}</td>
                 <td class="client-list__table-cell">${client.surname}</td>
-                <td class="client-list__table-cell">${client.date}</td>
-                <td class="client-list__table-cell">${client.deposit}</td>
+                <td class="client-list__table-cell">${client.year}.${client.month}.${client.day}</td>
                 <td class="client-list__table-cell">
                     <button class="delete-client" data-client-id="${client.id}">Удалить</button>
                 </td>
@@ -79,8 +77,7 @@ export class ClientList {
             <p><strong>ID:</strong> ${client.id}</p>
             <p><strong>Имя:</strong> ${client.name}</p>
             <p><strong>Фамилия:</strong> ${client.surname}</p>
-            <p><strong>Дата:</strong> ${client.date}</p>
-            <p><strong>Депозит:</strong> ${client.deposit}</p>
+            <p><strong>Дата:</strong> ${client.year}.${client.month}.${client.day}</p>
         `;
         this.clientDetails.classList.add('client-list__details--active');
 		

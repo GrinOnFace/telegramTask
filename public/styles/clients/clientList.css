@@ -123,30 +123,3 @@
         font-size: 16px;
     }
 }
-
-@media screen and (max-width: 480px) {
-    .client-list__table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-
-    .client-list__table-header,
-    .client-list__table-cell {
-        font-size: 12px;
-        padding: 8px;
-    }
-
-    .client-list__details {
-        padding: 10px;
-    }
-
-    .client-list__details-title {
-        font-size: 14px;
-    }
-
-    .delete-client {
-        padding: 8px;
-        font-size: 12px;
-    }
-}

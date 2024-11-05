@@ -12,7 +12,7 @@ export class ExpenseList {
 
         const expenseListHTML = `
             <div class="expense-list">
-                <h1 class="expense-list__title">Список расходов, доходов и депозитов</h1>
+                <h1 class="expense-list__title">Список расходов, доходов, депозитов и налогов</h1>
                 <div class="date-selector">
                     <input type="number" id="yearInput" min="2000" max="2100" value="${currentYear}">
                     <select id="monthInput">
@@ -45,6 +45,10 @@ export class ExpenseList {
                         <h2>Списанные депозиты</h2>
                         <table id="depositsOutTable"></table>
                     </div>
+                    <div class="expense-table">
+                        <h2>Налоги</h2>
+                        <table id="taxesTable"></table>
+                    </div>
                 </div>
             </div>
         `;
@@ -65,6 +69,7 @@ export class ExpenseList {
         await this.fetchAndDisplayExpenses('investitions', year, month);
         await this.fetchAndDisplayDeposits('in', year, month);
         await this.fetchAndDisplayDeposits('out', year, month);
+        await this.fetchAndDisplayTaxes(year, month);
     }
 
     async fetchAndDisplayProfits(year, month) {
@@ -84,21 +89,28 @@ export class ExpenseList {
 
     displayProfits(profits) {
         const table = this.container.querySelector('#profitsTable');
-        console.log(profits);
         table.innerHTML = `
             <tr>
                 <th>Дата</th>
                 <th>Название</th>
                 <th>Сумма</th>
+                <th>Действия</th>
             </tr>
             ${profits.data.map(profit => `
                 <tr>
                     <td>${profit.year}.${profit.month}.${profit.day}</td>
                     <td>${profit.name}</td>
                     <td>${profit.sum}</td>
+                    <td>
+                        <button class="delete-button" data-type="profits" data-id="${profit.id}">Удалить</button>
+                    </td>
                 </tr>
             `).join('')}
         `;
+        
+        table.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', () => this.deleteItem('profits', button.dataset.id));
+        });
     }
 
     async fetchAndDisplayExpenses(type, year, month) {
@@ -118,21 +130,28 @@ export class ExpenseList {
 
     displayExpenses(type, expenses) {
         const table = this.container.querySelector(`#${type}Table`);
-		console.log(expenses);
         table.innerHTML = `
             <tr>
                 <th>Дата</th>
                 <th>Название</th>
                 <th>Сумма</th>
+                <th>Действия</th>
             </tr>
             ${expenses.data.map(expense => `
                 <tr>
                     <td>${expense.year}.${expense.month}.${expense.day}</td>
                     <td>${expense.name}</td>
                     <td>${expense.sum}</td>
+                    <td>
+                        <button class="delete-button" data-type="${type}" data-id="${expense.id}">Удалить</button>
+                    </td>
                 </tr>
             `).join('')}
         `;
+        
+        table.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', () => this.deleteItem(type, button.dataset.id));
+        });
     }
 
     async fetchAndDisplayDeposits(type, year, month) {
@@ -152,20 +171,182 @@ export class ExpenseList {
 
     displayDeposits(type, deposits) {
         const table = this.container.querySelector(`#deposits${type.charAt(0).toUpperCase() + type.slice(1)}Table`);
-        console.log(deposits);
         table.innerHTML = `
             <tr>
                 <th>Дата</th>
                 <th>Название</th>
                 <th>Сумма</th>
+                <th>Действия</th>
             </tr>
-            ${deposits.data.map(deposit => `
-                <tr>
-                    <td>${deposit.year}.${deposit.month}.${deposit.day}</td>
-                    <td>${deposit.name}</td>
-                    <td>${deposit.sum}</td>
-                </tr>
-            `).join('')}
+            <tr>
+                <td data-label="Дата">${deposits.data.year}.${deposits.data.month}.${deposits.data.day}</td>
+                <td data-label="Название">${deposits.data.type}</td>
+                <td data-label="Сумма">${deposits.data.sum}</td>
+                <td data-label="Действия">
+                    <button class="delete-button" 
+                        data-type="${type}" 
+                        data-year="${deposits.data.year}"
+                        data-month="${deposits.data.month}">
+                        Удалить
+                    </button>
+                </td>
+            </tr>
         `;
+        
+        table.querySelector('.delete-button').addEventListener('click', (e) => {
+            const button = e.target;
+            this.deleteDeposit(
+                button.dataset.type,
+                button.dataset.year,
+                button.dataset.month
+            );
+        });
+    }
+
+    async deleteDeposit(type, year, month) {
+        if (!confirm('Вы уверены, что хотите удалить этот депозит?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/api/v1/deposits/${type}/${year}/${month}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                const table = this.container.querySelector(`#deposits${type.charAt(0).toUpperCase() + type.slice(1)}Table`);
+                table.innerHTML = `
+                    <tr>
+                        <th>Дата</th>
+                        <th>Название</th>
+                        <th>Сумма</th>
+                        <th>Действия</th>
+                    </tr>
+                `;
+                
+                const currentYear = this.container.querySelector('#yearInput').value;
+                const currentMonth = this.container.querySelector('#monthInput').value;
+                await this.fetchAndDisplayDeposits(type, currentYear, currentMonth);
+            } else {
+                console.error('Ошибка при удалении депозита:', await response.json());
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке запроса на удаление депозита:', error);
+        }
+    }
+
+    async deleteItem(type, id) {
+        if (!confirm('Вы уверены, что хотите удалить эту запись?')) {
+            return;
+        }
+
+        try {
+            let endpoint;
+            switch(type) {
+                case 'profits':
+                    endpoint = `http://localhost:3000/api/v1/month/profits/${id}`;
+                    break;
+                case 'promotions':
+                    endpoint = `http://localhost:3000/api/v1/month/expenses/promotions/${id}`;
+                    break;
+                case 'orgs':
+                    endpoint = `http://localhost:3000/api/v1/month/expenses/orgs/${id}`;
+                    break;
+                case 'investitions':
+                    endpoint = `http://localhost:3000/api/v1/month/expenses/investitions/${id}`;
+                    break;
+                default:
+                    console.error('Неизвестный тип записи');
+                    return;
+            }
+
+            const response = await fetch(endpoint, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                // Перезагружаем данные после успешного удаления
+                const year = this.container.querySelector('#yearInput').value;
+                const month = this.container.querySelector('#monthInput').value;
+                this.loadExpenses();
+            } else {
+                console.error('Ошибка при удалении записи:', await response.json());
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке запроса на удаление:', error);
+        }
+    }
+
+    async fetchAndDisplayTaxes(year, month) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/v1/taxes/${year}/${month}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                this.displayTaxes(data);
+            } else {
+                console.error('Ошибка при получении налогов:', data);
+            }
+        } catch (error) {
+            console.error('Ошибка при запросе налогов:', error);
+        }
+    }
+
+    displayTaxes(taxes) {
+        const table = this.container.querySelector('#taxesTable');
+        table.innerHTML = `
+            <tr>
+                <th>Дата</th>
+                <th>Сумма</th>
+                <th>Действия</th>
+            </tr>
+            <tr>
+                <td data-label="Дата">${taxes.data.year}.${taxes.data.month}.${taxes.data.day}</td>
+                <td data-label="Сумма">${taxes.data.sum}</td>
+                <td data-label="Действия">
+                    <button class="delete-button" 
+                        data-year="${taxes.data.year}"
+                        data-month="${taxes.data.month}">
+                        Удалить
+                    </button>
+                </td>
+            </tr>
+        `;
+        
+        table.querySelector('.delete-button').addEventListener('click', (e) => {
+            const button = e.target;
+            this.deleteTax(button.dataset.year, button.dataset.month);
+        });
+    }
+
+    async deleteTax(year, month) {
+        if (!confirm('Вы уверены, что хотите удалить налог?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/api/v1/taxes/${year}/${month}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                const table = this.container.querySelector('#taxesTable');
+                table.innerHTML = `
+                    <tr>
+                        <th>Дата</th>
+                        <th>Сумма</th>
+                        <th>Действия</th>
+                    </tr>
+                `;
+                
+                const currentYear = this.container.querySelector('#yearInput').value;
+                const currentMonth = this.container.querySelector('#monthInput').value;
+                await this.fetchAndDisplayTaxes(currentYear, currentMonth);
+            } else {
+                console.error('Ошибка при удалении налога:', await response.json());
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке запроса на удаление налога:', error);
+        }
     }
 }

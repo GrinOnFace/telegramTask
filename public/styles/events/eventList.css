@@ -265,3 +265,36 @@
         margin-bottom: 10px;
     }
 }
+
+.add-client-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.add-client-form input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.add-client-form button {
+    padding: 8px;
+    background-color: #333333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-client-form button:hover {
+    background-color: #222222;
+}
+
+@media screen and (min-width: 768px) {
+    .add-client-form {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+}

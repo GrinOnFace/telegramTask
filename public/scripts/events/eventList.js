@@ -95,7 +95,7 @@ export class EventList {
             const clientData = await this.fetchClientData(client.id);
             return `<li>
                 <a href="#" class="client-link" data-client-id="${client.id}">
-                    ${clientData.name} ${clientData.surname}
+                    ${clientData.name} ${clientData.surname} - ${client.deposit}
                 </a>
             </li>`;
         }));
@@ -108,7 +108,6 @@ export class EventList {
 
         this.eventDetails.innerHTML = `
             <h2 class="event-list__details-title">Детали мероприятия</h2>
-            <p><strong>ID:</strong> ${event.id}</p>
             <p><strong>Название:</strong> ${event.name}</p>
             <p><strong>Дата:</strong> ${event.date.year}.${event.date.month}.${event.date.day}</p>
             <h3>Клиенты:</h3>
@@ -116,8 +115,12 @@ export class EventList {
             <h3>Расходы:</h3>
             <ul>${expensesList || '<li>Нет расходов</li>'}</ul>
             <h3>Добавить клиента:</h3>
-            <input type="text" id="clientIdInput" placeholder="ID клиента" />
-            <button id="addClientButton" data-event-id="${event.id}">Добавить клиента</button>
+            <div class="add-client-form">
+                <input type="text" id="clientName" placeholder="Имя клиента" required />
+                <input type="text" id="clientSurname" placeholder="Фамилия клиента" required />
+                <input type="number" id="clientDeposit" placeholder="Депозит" required step="0.01" />
+                <button id="addClientButton" data-event-id="${event.id}">Добавить клиента</button>
+            </div>
             <h3>Добавить расход:</h3>
             <input type="text" id="expenseName" placeholder="Название расхода" />
             <input type="date" id="expenseDate" />
@@ -135,8 +138,16 @@ export class EventList {
         });
 
         this.eventDetails.querySelector('#addClientButton').addEventListener('click', () => {
-            const clientId = document.getElementById('clientIdInput').value;
-            this.addClientToEvent(event.id, clientId);
+            const name = document.getElementById('clientName').value;
+            const surname = document.getElementById('clientSurname').value;
+            const deposit = document.getElementById('clientDeposit').value;
+            
+            if (!name || !surname || !deposit) {
+                alert('Пожалуйста, заполните все поля для клиента');
+                return;
+            }
+            
+            this.addClientToEvent(event.id, { name, surname, deposit });
         });
 
         this.eventDetails.querySelector('#addExpenseButton').addEventListener('click', () => {
@@ -151,21 +162,43 @@ export class EventList {
         }, 100);
     }
 
-    async addClientToEvent(eventId, clientId) {
+    async addClientToEvent(eventId, clientData) {
         try {
             const response = await fetch(`http://localhost:3000/api/v1/events/${eventId}/clients`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ id: clientId }),
+                body: JSON.stringify({
+                    name: clientData.name,
+                    surname: clientData.surname,
+                    deposit: clientData.deposit
+                }),
             });
 
+            const responseData = await response.json();
+            
             if (response.ok) {
-                console.log(`Клиент с ID ${clientId} успешно добавлен в мероприятие с ID ${eventId}.`);
-                await this.fetchEvents();
+                console.log(`Клиент ${clientData.name} ${clientData.surname} успешно добавлен в мероприятие с ID ${eventId}.`);
+                
+                const updatedEvent = this.events.find(event => event.id === eventId);
+                const newClient = {
+                    id: responseData.data.id, 
+                    name: clientData.name,
+                    surname: clientData.surname,
+                    deposit: clientData.deposit
+                };
+                updatedEvent.clients.push(newClient);
+
+                this.showEventDetails(updatedEvent);
+                
+                this.displayEvents();
+
+                document.getElementById('clientName').value = '';
+                document.getElementById('clientSurname').value = '';
+                document.getElementById('clientDeposit').value = '';
             } else {
-                console.error('Ошибка при добавлении клиента в мероприятие:', await response.json());
+                console.error('Ошибка при добавлении клиента в мероприятие:', responseData);
             }
         } catch (error) {
             console.error('Ошибка при отправке запроса на добавление клиента в мероприятие:', error);
@@ -218,8 +251,7 @@ export class EventList {
                 <h3>Информация о клиенте</h3>
                 <p><strong>Имя:</strong> ${clientData.name}</p>
                 <p><strong>Фамилия:</strong> ${clientData.surname}</p>
-                <p><strong>Дата:</strong> ${clientData.date}</p>
-                <p><strong>Депозит:</strong> ${clientData.deposit}</p>
+                <p><strong>Дата:</strong> ${clientData.year}.${clientData.month}.${clientData.day}</p>
             </div>
         `;
 

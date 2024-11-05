@@ -2,12 +2,17 @@
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .earning-table__title {
     text-align: center;
     margin-bottom: 20px;
     font-size: 24px;
+    color: #2c3e50;
+    font-weight: 600;
 }
 
 .date-selector {
@@ -20,15 +25,26 @@
 .date-selector input,
 .date-selector select,
 .date-selector button {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.date-selector input:focus,
+.date-selector select:focus {
+    border-color: #409eff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
 }
 
 .date-selector button {
     background-color: #333333;
     color: white;
     cursor: pointer;
+    border: none;
+    font-weight: 500;
 }
 
 .date-selector button:hover {
@@ -37,24 +53,50 @@
 
 .summary-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     margin-bottom: 20px;
+    border: 1px solid #ebeef5;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .summary-table th,
 .summary-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    padding: 12px 16px;
     text-align: left;
+    border-bottom: 1px solid #ebeef5;
 }
 
 .summary-table th {
-    background-color: #f4f4f4;
+    background-color: #f5f7fa;
+    color: #606266;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.summary-table tr:hover {
+    background-color: #f5f7fa;
 }
 
 .total-row {
-    background-color: #e8ffe8;
+    background-color: #f0f9eb;
     font-weight: bold;
+}
+
+.total-row td {
+    border-top: 2px solid #e1e1e1;
+    color: #67c23a;
+}
+
+/* Добавляем стили для отрицательных значений */
+.negative-value {
+    color: #f56c6c;
+}
+
+/* Добавляем стили для положительных значений */
+.positive-value {
+    color: #67c23a;
 }
 
 .additional-info {
@@ -69,15 +111,26 @@
 .deposit-section,
 .tax-section,
 .total-checkout {
-    background-color: #f4f4f4;
-    padding: 15px;
-    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.expenses-section:hover,
+.profit-section:hover,
+.deposit-section:hover,
+.tax-section:hover,
+.total-checkout:hover {
+    transform: translateY(-2px);
 }
 
 .total-checkout {
-    background-color: #e8ffe8;
+    background-color: #f0f9eb;
     font-weight: bold;
     font-size: 1.2em;
+    border: 1px solid #e1f3d8;
 }
 
 @media screen and (max-width: 768px) {
@@ -88,9 +141,14 @@
     .summary-table {
         display: block;
         overflow-x: auto;
+        border-radius: 4px;
     }
 
     .additional-info {
         grid-template-columns: 1fr;
+    }
+
+    .date-selector input {
+        width: calc(100% - 25px);
     }
 } 

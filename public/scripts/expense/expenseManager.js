@@ -66,6 +66,15 @@ export class ExpenseManager {
                         </form>
                     </div>
                 </div>
+				<h1 class="expense-manager__title">Менеджер налогов</h1>
+                <div class="expense-form">
+                    <h2 class="expense-form__title">Налоги</h2>
+                    <form id="taxForm">
+                        <input type="date" id="taxDate" required>
+                        <input type="number" id="taxAmount" placeholder="Сумма" required>
+                        <button type="submit">Добавить налог</button>
+                    </form>
+                </div>
             </div>
         `;
         this.container.innerHTML = expenseManagerHTML;
@@ -78,6 +87,7 @@ export class ExpenseManager {
         this.container.querySelector('#profitForm').addEventListener('submit', (e) => this.handleProfitSubmit(e));
         this.container.querySelector('#depositInForm').addEventListener('submit', (e) => this.handleDepositSubmit(e, 'in'));
         this.container.querySelector('#depositOutForm').addEventListener('submit', (e) => this.handleDepositSubmit(e, 'out'));
+        this.container.querySelector('#taxForm').addEventListener('submit', (e) => this.handleTaxSubmit(e));
     }
 
     async handleSubmit(e, type) {
@@ -195,6 +205,44 @@ export class ExpenseManager {
             }
         } catch (error) {
             console.error(`Ошибка при отправке запроса на ${type === 'in' ? 'внесение' : 'списание'} депозита:`, error);
+        }
+    }
+
+    async handleTaxSubmit(e) {
+        e.preventDefault();
+        const dateInput = this.container.querySelector('#taxDate');
+        const amountInput = this.container.querySelector('#taxAmount');
+
+        if (!dateInput || !amountInput) {
+            console.error('Не удалось найти все необходимые поля для налогов');
+            return;
+        }
+
+        const date = dateInput.value;
+        const sum = amountInput.value;
+
+        if (!date || !sum) {
+            alert('Пожалуйста, заполните все поля');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:3000/api/v1/taxes/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ date, sum }),
+            });
+
+            if (response.ok) {
+                alert('Налог успешно добавлен');
+                e.target.reset();
+            } else {
+                alert('Ошибка при добавлении налога');
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке запроса на добавление налога:', error);
         }
     }
 }

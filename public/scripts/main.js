@@ -1,12 +1,12 @@
 import { Calendar } from './calendar/calendar.js';
 import { EventManager } from './events/eventManager.js';
 import { EventList } from './events/eventList.js';
-import { ClientManager } from './clients/clientManager.js';
 import { ClientList } from './clients/clientList.js';
 import { Auth } from './auth/auth.js';
 import { ExpenseManager } from './expense/expenseManager.js';
 import { ExpenseList } from './expense/expenseList.js';
 import { EarningTable } from './earning/earningTable.js';
+import { SummaryTable } from './summary/summaryTable.js';
 
 const root = document.getElementById('app');
 const menuContainer = document.createElement('aside');
@@ -30,10 +30,6 @@ const config = {
 			id: 'event-list',
 			text: 'Список мероприятий',
 		},
-        clientManager: {
-            id: 'client-manager',
-            text: 'Менеджер клиентов',
-        },
 		clientList: {
 			id: 'client-list',
 			text: 'Список клиентов',
@@ -49,6 +45,10 @@ const config = {
 		earningTable: {
 			id: 'earning-table',
 			text: 'Сводная таблица',
+		},
+		summaryTable: {
+			id: 'summary-table',
+			text: 'Годовая таблица',
 		},
     },
 };
@@ -91,13 +91,6 @@ function renderContent(sectionId) {
 			new EventList(eventListContainer);
 			break;
 		}
-        case 'client-manager': {
-            const clientManagerContainer = document.createElement('div');
-            clientManagerContainer.id = 'client-manager-container';
-            pageContainer.appendChild(clientManagerContainer);
-            new ClientManager(clientManagerContainer);
-            break;
-        }
 		case 'client-list': {
 			const clientListContainer = document.createElement('div');
 			clientListContainer.id = 'client-list-container';
@@ -124,6 +117,13 @@ function renderContent(sectionId) {
 			earningTableContainer.id = 'earning-table-container';
 			pageContainer.appendChild(earningTableContainer);
 			new EarningTable(earningTableContainer);
+			break;
+		}
+		case 'summary-table': {
+			const summaryTableContainer = document.createElement('div');
+			summaryTableContainer.id = 'summary-table-container';
+			pageContainer.appendChild(summaryTableContainer);
+			new SummaryTable(summaryTableContainer);
 			break;
 		}
 		case 'login': {
