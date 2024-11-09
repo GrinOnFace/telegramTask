@@ -111,10 +111,12 @@ export class ExpenseManager {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/month/expenses/${type}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ date, name, sum }),
             });
@@ -151,10 +153,12 @@ export class ExpenseManager {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch('http://localhost:3000/api/v1/month/profits/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ date, name, sum }),
             });
@@ -189,10 +193,12 @@ export class ExpenseManager {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/deposits/${type}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ date, sum }),
             });
@@ -227,10 +233,12 @@ export class ExpenseManager {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch('http://localhost:3000/api/v1/taxes/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ date, sum }),
             });

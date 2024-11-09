@@ -76,7 +76,12 @@ export class EarningTable {
         const month = this.container.querySelector('#monthInput').value;
 
         try {
-            const response = await fetch(`http://localhost:3000/api/v1/earning/${year}/${month}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/v1/earning/${year}/${month}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             if (response.ok) {

@@ -1,5 +1,3 @@
-import config from '../config.js';
-
 export class Auth {
     constructor(container, onAuthStateChange) {
         this.container = container;
@@ -33,25 +31,41 @@ export class Auth {
         this.loginForm.addEventListener('submit', this.handleSubmit.bind(this));
     }
 
-    handleSubmit(e) {
+    async handleSubmit(e) {
         e.preventDefault();
         const username = this.container.querySelector('#username').value;
         const password = this.container.querySelector('#password').value;
         
-        if (username === config.auth.username && password === config.auth.password) {
-            localStorage.setItem('isAuthenticated', 'true');
-            this.onAuthStateChange(true);
-        } else {
-            alert('Неверное имя пользователя или пароль');
+        try {
+            const response = await fetch('http://localhost:3000/api/v1/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                localStorage.setItem('token', data.data.token);
+                localStorage.setItem('isAuthenticated', 'true');
+                this.onAuthStateChange(true);
+            } else {
+                alert('Неверное имя пользователя или пароль');
+            }
+        } catch (error) {
+            console.error('Ошибка при авторизации:', error);
+            alert('Произошла ошибка при попытке входа');
         }
     }
 
     static logout() {
+        localStorage.removeItem('token');
         localStorage.removeItem('isAuthenticated');
         this.onAuthStateChange(false);
     }
 
     static isAuthenticated() {
-        return localStorage.getItem('isAuthenticated') === 'true';
+        return localStorage.getItem('isAuthenticated') === 'true' && localStorage.getItem('token');
     }
 }

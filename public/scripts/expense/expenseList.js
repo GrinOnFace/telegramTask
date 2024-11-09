@@ -74,7 +74,12 @@ export class ExpenseList {
 
     async fetchAndDisplayProfits(year, month) {
         try {
-            const response = await fetch(`http://localhost:3000/api/v1/month/profits/${year}/${month}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/v1/month/profits/${year}/${month}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             if (response.ok) {
@@ -102,7 +107,7 @@ export class ExpenseList {
                     <td>${profit.name}</td>
                     <td>${profit.sum}</td>
                     <td>
-                        <button class="delete-button" data-type="profits" data-id="${profit.id}">Удалить</button>
+                        <button class="expense-button" data-type="profits" data-id="${profit.id}">Удалить</button>
                     </td>
                 </tr>
             `).join('')}
@@ -115,7 +120,12 @@ export class ExpenseList {
 
     async fetchAndDisplayExpenses(type, year, month) {
         try {
-            const response = await fetch(`http://localhost:3000/api/v1/month/expenses/${type}/${year}/${month}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/v1/month/expenses/${type}/${year}/${month}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             if (response.ok) {
@@ -143,7 +153,7 @@ export class ExpenseList {
                     <td>${expense.name}</td>
                     <td>${expense.sum}</td>
                     <td>
-                        <button class="delete-button" data-type="${type}" data-id="${expense.id}">Удалить</button>
+                        <button class="expense-button" data-type="${type}" data-id="${expense.id}">Удалить</button>
                     </td>
                 </tr>
             `).join('')}
@@ -156,7 +166,12 @@ export class ExpenseList {
 
     async fetchAndDisplayDeposits(type, year, month) {
         try {
-            const response = await fetch(`http://localhost:3000/api/v1/deposits/${type}/${year}/${month}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/v1/deposits/${type}/${year}/${month}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             if (response.ok) {
@@ -178,22 +193,24 @@ export class ExpenseList {
                 <th>Сумма</th>
                 <th>Действия</th>
             </tr>
+            ${Object.keys(deposits.data).length !== 0 ? `
             <tr>
                 <td data-label="Дата">${deposits.data.year}.${deposits.data.month}.${deposits.data.day}</td>
                 <td data-label="Название">${deposits.data.type}</td>
                 <td data-label="Сумма">${deposits.data.sum}</td>
                 <td data-label="Действия">
-                    <button class="delete-button" 
+                    <button class="expense-button" 
                         data-type="${type}" 
                         data-year="${deposits.data.year}"
                         data-month="${deposits.data.month}">
                         Удалить
                     </button>
-                </td>
-            </tr>
+                    </td>
+                </tr>
+            ` : ''}
         `;
         
-        table.querySelector('.delete-button').addEventListener('click', (e) => {
+        table.querySelector('.expense-button').addEventListener('click', (e) => {
             const button = e.target;
             this.deleteDeposit(
                 button.dataset.type,
@@ -209,8 +226,12 @@ export class ExpenseList {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/deposits/${type}/${year}/${month}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {
@@ -241,6 +262,7 @@ export class ExpenseList {
         }
 
         try {
+            const token = localStorage.getItem('token');
             let endpoint;
             switch(type) {
                 case 'profits':
@@ -261,11 +283,13 @@ export class ExpenseList {
             }
 
             const response = await fetch(endpoint, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {
-                // Перезагружаем данные после успешного удаления
                 const year = this.container.querySelector('#yearInput').value;
                 const month = this.container.querySelector('#monthInput').value;
                 this.loadExpenses();
@@ -279,7 +303,12 @@ export class ExpenseList {
 
     async fetchAndDisplayTaxes(year, month) {
         try {
-            const response = await fetch(`http://localhost:3000/api/v1/taxes/${year}/${month}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/v1/taxes/${year}/${month}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             if (response.ok) {
@@ -300,20 +329,22 @@ export class ExpenseList {
                 <th>Сумма</th>
                 <th>Действия</th>
             </tr>
+            ${Object.keys(taxes.data).length !== 0 ? `
             <tr>
                 <td data-label="Дата">${taxes.data.year}.${taxes.data.month}.${taxes.data.day}</td>
                 <td data-label="Сумма">${taxes.data.sum}</td>
                 <td data-label="Действия">
-                    <button class="delete-button" 
+                    <button class="expense-button" 
                         data-year="${taxes.data.year}"
                         data-month="${taxes.data.month}">
                         Удалить
                     </button>
                 </td>
             </tr>
+            ` : ''}
         `;
         
-        table.querySelector('.delete-button').addEventListener('click', (e) => {
+        table.querySelector('.expense-button').addEventListener('click', (e) => {
             const button = e.target;
             this.deleteTax(button.dataset.year, button.dataset.month);
         });
@@ -325,8 +356,12 @@ export class ExpenseList {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/taxes/${year}/${month}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {

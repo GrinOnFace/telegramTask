@@ -32,7 +32,12 @@ export class EventList {
 
     async fetchEvents() {
         try {
-            const response = await fetch('http://localhost:3000/api/v1/events');
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:3000/api/v1/events', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
             if (data.status === 'OK') {
                 this.events = data.data;
@@ -75,12 +80,15 @@ export class EventList {
 
     async deleteEvent(eventId) {
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/events/${eventId}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {
-                console.log(`Мероприятие с ID ${eventId} успешно удалено.`);
                 await this.fetchEvents();
             } else {
                 console.error('Ошибка при удалении мероприятия:', await response.json());
@@ -164,10 +172,12 @@ export class EventList {
 
     async addClientToEvent(eventId, clientData) {
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/events/${eventId}/clients`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     name: clientData.name,
@@ -176,41 +186,25 @@ export class EventList {
                 }),
             });
 
-            const responseData = await response.json();
-            
             if (response.ok) {
-                console.log(`Клиент ${clientData.name} ${clientData.surname} успешно добавлен в мероприятие с ID ${eventId}.`);
-                
-                const updatedEvent = this.events.find(event => event.id === eventId);
-                const newClient = {
-                    id: responseData.data.id, 
-                    name: clientData.name,
-                    surname: clientData.surname,
-                    deposit: clientData.deposit
-                };
-                updatedEvent.clients.push(newClient);
-
-                this.showEventDetails(updatedEvent);
-                
-                this.displayEvents();
-
-                document.getElementById('clientName').value = '';
-                document.getElementById('clientSurname').value = '';
-                document.getElementById('clientDeposit').value = '';
+                await this.fetchEvents();
+                this.showEventDetails(this.events.find(event => event.id === eventId));
             } else {
-                console.error('Ошибка при добавлении клиента в мероприятие:', responseData);
+                console.error('Ошибка при добавлении клиента:', await response.json());
             }
         } catch (error) {
-            console.error('Ошибка при отправке запроса на добавление клиента в мероприятие:', error);
+            console.error('Ошибка при отправке запроса:', error);
         }
     }
 
     async addExpenseToEvent(eventId, name, date, sum) {
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/events/${eventId}/expenses`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ name, date, sum }),
             });
@@ -229,17 +223,26 @@ export class EventList {
 
     async fetchClientData(clientId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/v1/clients/${clientId}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/v1/clients/${clientId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
             if (data.status === 'OK') {
-                return data.data;
+				if (data.data) {
+					return data.data;
+				} else {
+					return { name: 'Удален', surname: 'Удален', year: 'Неизвестно', month: 'Неизвестно', day: 'Неизвестно', id: 'Неизвестно' };
+				}
             } else {
                 console.error('Ошибка при получении данных клиента');
-                return { name: 'Неизвестно', surname: 'Неизвестно' };
+                return { name: 'Неизвестно', surname: 'Неизвестно', year: 'Неизвестно', month: 'Неизвестно', day: 'Неизвестно', id: 'Неизвестно' };
             }
         } catch (error) {
             console.error('Ошибка при запросе данных клиента:', error);
-            return { name: 'Неизвестно', surname: 'Неизвестно' };
+            return { name: 'Неизвестно', surname: 'Неизвестно', year: 'Неизвестно', month: 'Неизвестно', day: 'Неизвестно', id: 'Неизвестно' };
         }
     }
 

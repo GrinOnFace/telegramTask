@@ -31,7 +31,12 @@ export class ClientList {
 
     async fetchClients() {
         try {
-            const response = await fetch('http://localhost:3000/api/v1/clients');
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:3000/api/v1/clients', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
             if (data.status === 'OK') {
                 this.clients = data.data;
@@ -91,8 +96,12 @@ export class ClientList {
 
     async deleteClient(clientId) {
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/clients/${clientId}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {

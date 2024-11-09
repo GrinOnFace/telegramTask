@@ -101,8 +101,14 @@ export class SummaryTable {
         const month = new Date().getMonth() + 1; 
 
         try {
-            const summaryResponse = await fetch(`http://localhost:3000/api/v1/summary/${year}`);
+            const token = localStorage.getItem('token');
+            const summaryResponse = await fetch(`http://localhost:3000/api/v1/summary/${year}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const summaryData = await summaryResponse.json();
+			console.log(summaryData)
 
             if (summaryResponse.ok) {
                 this.displaySummaryData(summaryData.data);
@@ -120,7 +126,12 @@ export class SummaryTable {
 
     async loadSocialStats(socnet, year, month) {
         try {
-            const response = await fetch(`http://localhost:3000/api/v1/social_stats/${socnet}/${year}/${month}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/v1/social_stats/${socnet}/${year}/${month}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             if (response.ok) {
@@ -165,10 +176,12 @@ export class SummaryTable {
         if (newCount === null) return;
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/social_stats/${socnet}/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     count: parseInt(newCount)
@@ -193,8 +206,12 @@ export class SummaryTable {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:3000/api/v1/social_stats/${socnet}/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {
