@@ -1,3 +1,5 @@
+import { API } from '../config/api.js';
+
 export class ClientList {
     constructor(container) {
         this.container = container;
@@ -31,21 +33,13 @@ export class ClientList {
 
     async fetchClients() {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/v1/clients', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
+            const data = await API.getClients();
             if (data.status === 'OK') {
                 this.clients = data.data;
                 this.displayClients();
-            } else {
-                console.error('Ошибка при получении данных клиентов');
             }
         } catch (error) {
-            console.error('Ошибка при запросе данных клиентов:', error);
+            console.error('Ошибка при получении данных клиентов:', error);
         }
     }
 
@@ -85,8 +79,8 @@ export class ClientList {
             <p><strong>Дата:</strong> ${client.year}.${client.month}.${client.day}</p>
         `;
         this.clientDetails.classList.add('client-list__details--active');
-		
-		setTimeout(() => {
+        
+        setTimeout(() => {
             window.scrollTo({
                 top: document.body.scrollHeight,
                 behavior: 'smooth'
@@ -96,22 +90,13 @@ export class ClientList {
 
     async deleteClient(clientId) {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/clients/${clientId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.ok) {
-                console.log(`Клиент с ID ${clientId} успешно удален.`);
-                await this.fetchClients();
-            } else {
-                console.error('Ошибка при удалении клиента:', await response.json());
-            }
+            await API.deleteClient(clientId);
+            this.clients = this.clients.filter(client => client.id !== clientId);
+            this.displayClients();
+            this.clientDetails.innerHTML = '';
+            this.clientDetails.classList.remove('client-list__details--active');
         } catch (error) {
-            console.error('Ошибка при отправке запроса на удаление клиента:', error);
+            console.error('Ошибка при удалении клиента:', error);
         }
     }
 }

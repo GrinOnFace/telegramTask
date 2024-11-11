@@ -133,6 +133,22 @@
     border: 1px solid #e1f3d8;
 }
 
+#loadTableButton {
+    padding: 8px 15px;
+    background-color: #333333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: fit-content;
+	margin-top: 22px;
+}
+
+#loadTableButton:hover {
+    background-color: #222222;
+}
+
 @media screen and (max-width: 768px) {
     .date-selector {
         flex-direction: column;

@@ -1,3 +1,5 @@
+import { API } from '../config/api.js';
+
 export class Auth {
     constructor(container, onAuthStateChange) {
         this.container = container;
@@ -37,32 +39,20 @@ export class Auth {
         const password = this.container.querySelector('#password').value;
         
         try {
-            const response = await fetch('http://localhost:3000/api/v1/auth', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            });
-
-            if (response.status === 200) {
-                const data = await response.json();
-                localStorage.setItem('token', data.data.token);
-                localStorage.setItem('isAuthenticated', 'true');
-                this.onAuthStateChange(true);
-            } else {
-                alert('Неверное имя пользователя или пароль');
-            }
+            const response = await API.login(username, password);
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('isAuthenticated', 'true');
+            this.onAuthStateChange(true);
         } catch (error) {
             console.error('Ошибка при авторизации:', error);
-            alert('Произошла ошибка при попытке входа');
+            alert(error.message || 'Неверное имя пользователя или пароль');
         }
     }
 
     static logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('isAuthenticated');
-        this.onAuthStateChange(false);
+        window.location.reload(); 
     }
 
     static isAuthenticated() {

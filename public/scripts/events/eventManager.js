@@ -1,3 +1,5 @@
+import { API } from '../config/api.js';
+
 export class EventManager {
     constructor(container) {
         this.container = container;
@@ -49,48 +51,12 @@ export class EventManager {
         };
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/v1/events', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(eventData)
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                console.log('Ответ сервера:', data);
-                this.eventForm.reset();
-                this.showSuccessMessage('Мероприятие успешно добавлено');
-            } else {
-                console.error('Ошибка при добавлении мероприятия:', data);
-                this.showErrorMessage('Ошибка при добавлении мероприятия');
-            }
+            await API.createEvent(eventData);
+            this.eventForm.reset();
+			alert("Мероприятие добавлено")
         } catch (error) {
-            console.error('Ошибка при отправке запроса:', error);
-            this.showErrorMessage('Ошибка при отправке запроса');
+            console.error('Ошибка при добавлении мероприятия:', error);
+            alert("Ошибка при добавлении мероприятия")
         }
-    }
-
-    showSuccessMessage(message) {
-        this.showMessage(message, 'success');
-    }
-
-    showErrorMessage(message) {
-        this.showMessage(message, 'error');
-    }
-
-    showMessage(message, type) {
-        const messageElement = document.createElement('div');
-        messageElement.textContent = message;
-        messageElement.classList.add('message', `message--${type}`);
-        this.container.insertBefore(messageElement, this.eventList);
-
-        setTimeout(() => {
-            messageElement.remove();
-        }, 3000);
     }
 }

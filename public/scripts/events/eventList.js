@@ -1,3 +1,5 @@
+import { API } from '../config/api.js';
+
 export class EventList {
     constructor(container) {
         this.container = container;
@@ -32,21 +34,13 @@ export class EventList {
 
     async fetchEvents() {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/v1/events', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
+            const data = await API.getEvents();
             if (data.status === 'OK') {
                 this.events = data.data;
                 this.displayEvents();
-            } else {
-                console.error('Ошибка при получении данных мероприятий');
             }
         } catch (error) {
-            console.error('Ошибка при запросе данных мероприятий:', error);
+            console.error('Ошибка при получении мероприятий:', error);
         }
     }
 
@@ -80,21 +74,10 @@ export class EventList {
 
     async deleteEvent(eventId) {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/events/${eventId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.ok) {
-                await this.fetchEvents();
-            } else {
-                console.error('Ошибка при удалении мероприятия:', await response.json());
-            }
+            await API.deleteEvent(eventId);
+			await this.fetchEvents();
         } catch (error) {
-            console.error('Ошибка при отправке запроса на удаление мероприятия:', error);
+            console.error('Ошибка при удалении мероприятия:', error);
         }
     }
 
@@ -172,78 +155,50 @@ export class EventList {
 
     async addClientToEvent(eventId, clientData) {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/events/${eventId}/clients`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    name: clientData.name,
-                    surname: clientData.surname,
-                    deposit: clientData.deposit
-                }),
+            await API.addClientToEvent(eventId, {
+                name: clientData.name,
+                surname: clientData.surname,
+                deposit: clientData.deposit
             });
-
-            if (response.ok) {
-                await this.fetchEvents();
-                this.showEventDetails(this.events.find(event => event.id === eventId));
-            } else {
-                console.error('Ошибка при добавлении клиента:', await response.json());
-            }
+            await this.fetchEvents();
+            this.showEventDetails(this.events.find(event => event.id === eventId));
         } catch (error) {
-            console.error('Ошибка при отправке запроса:', error);
+            console.error('Ошибка при добавлении клиента:', error);
         }
     }
 
     async addExpenseToEvent(eventId, name, date, sum) {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/events/${eventId}/expenses`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ name, date, sum }),
-            });
-
-            if (response.ok) {
-                console.log(`Расход успешно добавлен в мероприятие с ID ${eventId}.`);
-                await this.fetchEvents();
-                this.showEventDetails(this.events.find(event => event.id === eventId));
-            } else {
-                console.error('Ошибка при добавлении расхода в мероприятие:', await response.json());
-            }
+            await API.addExpenseToEvent(eventId, { name, date, sum });
+            await this.fetchEvents();
+            this.showEventDetails(this.events.find(event => event.id === eventId));
         } catch (error) {
-            console.error('Ошибка при отправке запроса на добавление расхода в мероприятие:', error);
+            console.error('Ошибка при добавлении расхода:', error);
         }
     }
 
     async fetchClientData(clientId) {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/clients/${clientId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
-            if (data.status === 'OK') {
-				if (data.data) {
-					return data.data;
-				} else {
-					return { name: 'Удален', surname: 'Удален', year: 'Неизвестно', month: 'Неизвестно', day: 'Неизвестно', id: 'Неизвестно' };
-				}
-            } else {
-                console.error('Ошибка при получении данных клиента');
-                return { name: 'Неизвестно', surname: 'Неизвестно', year: 'Неизвестно', month: 'Неизвестно', day: 'Неизвестно', id: 'Неизвестно' };
+            const data = await API.getClientData(clientId);
+            if (data.status === 'OK' && data.data) {
+                return data.data;
             }
+            return this.getDefaultClientData();
         } catch (error) {
-            console.error('Ошибка при запросе данных клиента:', error);
-            return { name: 'Неизвестно', surname: 'Неизвестно', year: 'Неизвестно', month: 'Неизвестно', day: 'Неизвестно', id: 'Неизвестно' };
+            console.error('Ошибка при получении данных клиента:', error);
+            return this.getDefaultClientData();
         }
+    }
+
+    getDefaultClientData() {
+        return {
+            name: 'Неизвестно',
+            surname: 'Неизвестно',
+            year: 'Неизвестно',
+            month: 'Неизвестно',
+            day: 'Неизвестно',
+            id: 'Неизвестно'
+        };
     }
 
     async showClientDetails(clientId) {

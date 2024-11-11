@@ -7,6 +7,7 @@ import { ExpenseManager } from './expense/expenseManager.js';
 import { ExpenseList } from './expense/expenseList.js';
 import { EarningTable } from './earning/earningTable.js';
 import { SummaryTable } from './summary/summaryTable.js';
+import { SocialStats } from './social/socialStats.js';
 
 const root = document.getElementById('app');
 const menuContainer = document.createElement('aside');
@@ -50,6 +51,10 @@ const config = {
 			id: 'summary-table',
 			text: 'Годовая таблица',
 		},
+        socialStats: {
+            id: 'social-stats',
+            text: 'Социальные сети',
+        },
     },
 };
 
@@ -124,6 +129,13 @@ function renderContent(sectionId) {
 			summaryTableContainer.id = 'summary-table-container';
 			pageContainer.appendChild(summaryTableContainer);
 			new SummaryTable(summaryTableContainer);
+			break;
+		}
+		case 'social-stats': {
+			const socialStatsContainer = document.createElement('div');
+			socialStatsContainer.id = 'social-stats-container';
+			pageContainer.appendChild(socialStatsContainer);
+			new SocialStats(socialStatsContainer);
 			break;
 		}
 		case 'login': {

@@ -1,3 +1,5 @@
+import { API } from '../config/api.js';
+
 export class ExpenseManager {
     constructor(container) {
         this.container = container;
@@ -92,165 +94,112 @@ export class ExpenseManager {
 
     async handleSubmit(e, type) {
         e.preventDefault();
-        const dateInput = this.container.querySelector(`#${type}Date`);
-        const nameInput = this.container.querySelector(`#${type}Name`);
-        const amountInput = this.container.querySelector(`#${type}Amount`);
-
-        if (!dateInput || !nameInput || !amountInput) {
-            console.error(`Не удалось найти все необходимые поля для типа ${type}`);
-            return;
-        }
-
-        const date = dateInput.value;
-        const name = nameInput.value;
-        const sum = amountInput.value;
-
-        if (!date || !name || !sum) {
+        const formData = this.getFormData(type);
+        
+        if (!this.validateFormData(formData)) {
             alert('Пожалуйста, заполните все поля');
             return;
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/month/expenses/${type}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ date, name, sum }),
-            });
-
-            if (response.ok) {
-                alert(`Расход ${type} успешно добавлен`);
-                e.target.reset();
-            } else {
-                alert(`Ошибка при добавлении расхода ${type}`);
-            }
+            await API.createExpense(type, formData);
+            alert(`Расход ${type} успешно добавлен`);
+            e.target.reset();
         } catch (error) {
-            console.error(`Ошибка при отправке запроса на добавление расхода ${type}:`, error);
+            console.error(`Ошибка при добавлении расхода ${type}:`, error);
+            alert(error.message || `Ошибка при добавлении расхода ${type}`);
         }
     }
 
     async handleProfitSubmit(e) {
         e.preventDefault();
-        const dateInput = this.container.querySelector('#profitDate');
-        const nameInput = this.container.querySelector('#profitName');
-        const amountInput = this.container.querySelector('#profitAmount');
-
-        if (!dateInput || !nameInput || !amountInput) {
-            console.error('Не удалось найти все необходимые поля для доходов');
-            return;
-        }
-
-        const date = dateInput.value;
-        const name = nameInput.value;
-        const sum = amountInput.value;
-
-        if (!date || !name || !sum) {
+        const formData = this.getFormData('profit');
+        
+        if (!this.validateFormData(formData)) {
             alert('Пожалуйста, заполните все поля');
             return;
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/v1/month/profits/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ date, name, sum }),
-            });
-
-            if (response.ok) {
-                alert('Доход успешно добавлен');
-                e.target.reset();
-            } else {
-                alert('Ошибка при добавлении дохода');
-            }
+            await API.createProfit(formData);
+            alert('Доход успешно добавлен');
+            e.target.reset();
         } catch (error) {
-            console.error('Ошибка при отправке запроса на добавление дохода:', error);
+            console.error('Ошибка при добавлении дохода:', error);
+            alert(error.message || 'Ошибка при добавлении дохода');
         }
     }
 
     async handleDepositSubmit(e, type) {
         e.preventDefault();
-        const dateInput = this.container.querySelector(`#deposit${type.charAt(0).toUpperCase() + type.slice(1)}Date`);
-        const amountInput = this.container.querySelector(`#deposit${type.charAt(0).toUpperCase() + type.slice(1)}Amount`);
-
-        if (!dateInput || !amountInput) {
-            console.error(`Не удалось найти все необходимые поля для депозита типа ${type}`);
-            return;
-        }
-
-        const date = dateInput.value;
-        const sum = amountInput.value;
-
-        if (!date || !sum) {
+        const formData = this.getDepositFormData(type);
+        
+        if (!this.validateDepositFormData(formData)) {
             alert('Пожалуйста, заполните все поля');
             return;
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/deposits/${type}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ date, sum }),
-            });
-
-            if (response.ok) {
-                alert(`Депозит успешно ${type === 'in' ? 'внесен' : 'списан'}`);
-                e.target.reset();
-            } else {
-                alert(`Ошибка при ${type === 'in' ? 'внесении' : 'списании'} депозита`);
-            }
+            await API.createDeposit(type, formData);
+            alert(`Депозит успешно ${type === 'in' ? 'внесен' : 'списан'}`);
+            e.target.reset();
         } catch (error) {
-            console.error(`Ошибка при отправке запроса на ${type === 'in' ? 'внесение' : 'списание'} депозита:`, error);
+            console.error(`Ошибка при ${type === 'in' ? 'внесении' : 'списании'} депозита:`, error);
+            alert(error.message || `Ошибка при ${type === 'in' ? 'внесении' : 'списании'} депозита`);
         }
     }
 
     async handleTaxSubmit(e) {
         e.preventDefault();
-        const dateInput = this.container.querySelector('#taxDate');
-        const amountInput = this.container.querySelector('#taxAmount');
-
-        if (!dateInput || !amountInput) {
-            console.error('Не удалось найти все необходимые поля для налогов');
-            return;
-        }
-
-        const date = dateInput.value;
-        const sum = amountInput.value;
-
-        if (!date || !sum) {
+        const formData = this.getTaxFormData();
+        
+        if (!this.validateTaxFormData(formData)) {
             alert('Пожалуйста, заполните все поля');
             return;
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/v1/taxes/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ date, sum }),
-            });
-
-            if (response.ok) {
-                alert('Налог успешно добавлен');
-                e.target.reset();
-            } else {
-                alert('Ошибка при добавлении налога');
-            }
+            await API.createTax(formData);
+            alert('Налог успешно добавлен');
+            e.target.reset();
         } catch (error) {
-            console.error('Ошибка при отправке запроса на добавление налога:', error);
+            console.error('Ошибка при добавлении налога:', error);
+            alert(error.message || 'Ошибка при добавлении налога');
         }
+    }
+
+    getFormData(type) {
+        return {
+            date: this.container.querySelector(`#${type}Date`).value,
+            name: this.container.querySelector(`#${type}Name`).value,
+            sum: this.container.querySelector(`#${type}Amount`).value
+        };
+    }
+
+    getDepositFormData(type) {
+        const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+        return {
+            date: this.container.querySelector(`#deposit${capitalizedType}Date`).value,
+            sum: this.container.querySelector(`#deposit${capitalizedType}Amount`).value
+        };
+    }
+
+    getTaxFormData() {
+        return {
+            date: this.container.querySelector('#taxDate').value,
+            sum: this.container.querySelector('#taxAmount').value
+        };
+    }
+
+    validateFormData(data) {
+        return data.date && data.name && data.sum;
+    }
+
+    validateDepositFormData(data) {
+        return data.date && data.sum;
+    }
+
+    validateTaxFormData(data) {
+        return data.date && data.sum;
     }
 }

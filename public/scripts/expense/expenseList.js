@@ -1,3 +1,5 @@
+import { API } from '../config/api.js';
+
 export class ExpenseList {
     constructor(container) {
         this.container = container;
@@ -14,10 +16,21 @@ export class ExpenseList {
             <div class="expense-list">
                 <h1 class="expense-list__title">Список расходов, доходов, депозитов и налогов</h1>
                 <div class="date-selector">
-                    <input type="number" id="yearInput" min="2000" max="2100" value="${currentYear}">
-                    <select id="monthInput">
-                        ${Array.from({length: 12}, (_, i) => `<option value="${i + 1}" ${i + 1 === currentMonth ? 'selected' : ''}>${i + 1}</option>`).join('')}
-                    </select>
+                    <div class="selector-group">
+                        <label>Год:</label>
+                        <input type="number" id="yearInput" min="2000" max="2100" value="${currentYear}">
+                    </div>
+                    <div class="selector-group">
+                        <label>Месяц:</label>
+                        <select id="monthInput">
+                            ${Array.from({length: 12}, (_, i) => {
+                                const month = i + 1;
+                                return `<option value="${month}" ${month === currentMonth ? 'selected' : ''}>
+                                    ${new Date(2000, i).toLocaleString('ru', {month: 'long'})}
+                                </option>`;
+                            }).join('')}
+                        </select>
+                    </div>
                     <button id="loadExpensesButton">Загрузить данные</button>
                 </div>
                 <div class="expense-tables">
@@ -63,32 +76,23 @@ export class ExpenseList {
         const year = this.container.querySelector('#yearInput').value;
         const month = this.container.querySelector('#monthInput').value;
 
-        await this.fetchAndDisplayProfits(year, month);
-        await this.fetchAndDisplayExpenses('promotions', year, month);
-        await this.fetchAndDisplayExpenses('orgs', year, month);
-        await this.fetchAndDisplayExpenses('investitions', year, month);
-        await this.fetchAndDisplayDeposits('in', year, month);
-        await this.fetchAndDisplayDeposits('out', year, month);
-        await this.fetchAndDisplayTaxes(year, month);
+        await Promise.all([
+            this.fetchAndDisplayProfits(year, month),
+            this.fetchAndDisplayExpenses('promotions', year, month),
+            this.fetchAndDisplayExpenses('orgs', year, month),
+            this.fetchAndDisplayExpenses('investitions', year, month),
+            this.fetchAndDisplayDeposits('in', year, month),
+            this.fetchAndDisplayDeposits('out', year, month),
+            this.fetchAndDisplayTaxes(year, month)
+        ]);
     }
 
     async fetchAndDisplayProfits(year, month) {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/month/profits/${year}/${month}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                this.displayProfits(data);
-            } else {
-                console.error('Ошибка при получении доходов:', data);
-            }
+            const data = await API.getProfits(year, month);
+            this.displayProfits(data);
         } catch (error) {
-            console.error('Ошибка при запросе доходов:', error);
+            console.error('Ошибка при получении доходов:', error);
         }
     }
 
@@ -113,28 +117,17 @@ export class ExpenseList {
             `).join('')}
         `;
         
-        table.querySelectorAll('.delete-button').forEach(button => {
+        table.querySelectorAll('.expense-button').forEach(button => {
             button.addEventListener('click', () => this.deleteItem('profits', button.dataset.id));
         });
     }
 
     async fetchAndDisplayExpenses(type, year, month) {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/month/expenses/${type}/${year}/${month}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                this.displayExpenses(type, data);
-            } else {
-                console.error(`Ошибка при получении расходов ${type}:`, data);
-            }
+            const data = await API.getExpenses(type, year, month);
+            this.displayExpenses(type, data);
         } catch (error) {
-            console.error(`Ошибка при запросе расходов ${type}:`, error);
+            console.error(`Ошибка при получении расходов ${type}:`, error);
         }
     }
 
@@ -159,28 +152,17 @@ export class ExpenseList {
             `).join('')}
         `;
         
-        table.querySelectorAll('.delete-button').forEach(button => {
+        table.querySelectorAll('.expense-button').forEach(button => {
             button.addEventListener('click', () => this.deleteItem(type, button.dataset.id));
         });
     }
 
     async fetchAndDisplayDeposits(type, year, month) {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/deposits/${type}/${year}/${month}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                this.displayDeposits(type, data);
-            } else {
-                console.error(`Ошибка при получении депозитов ${type}:`, data);
-            }
+            const data = await API.getDeposits(type, year, month);
+            this.displayDeposits(type, data);
         } catch (error) {
-            console.error(`Ошибка при запросе депозитов ${type}:`, error);
+            console.error(`Ошибка при получении депозитов ${type}:`, error);
         }
     }
 
@@ -226,33 +208,12 @@ export class ExpenseList {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/deposits/${type}/${year}/${month}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.ok) {
-                const table = this.container.querySelector(`#deposits${type.charAt(0).toUpperCase() + type.slice(1)}Table`);
-                table.innerHTML = `
-                    <tr>
-                        <th>Дата</th>
-                        <th>Название</th>
-                        <th>Сумма</th>
-                        <th>Действия</th>
-                    </tr>
-                `;
-                
-                const currentYear = this.container.querySelector('#yearInput').value;
-                const currentMonth = this.container.querySelector('#monthInput').value;
-                await this.fetchAndDisplayDeposits(type, currentYear, currentMonth);
-            } else {
-                console.error('Ошибка при удалении депозита:', await response.json());
-            }
+            await API.deleteDeposit(type, year, month);
+            const currentYear = this.container.querySelector('#yearInput').value;
+            const currentMonth = this.container.querySelector('#monthInput').value;
+            await this.fetchAndDisplayDeposits(type, currentYear, currentMonth);
         } catch (error) {
-            console.error('Ошибка при отправке запроса на удаление депозита:', error);
+            console.error('Ошибка при удалении депозита:', error);
         }
     }
 
@@ -262,62 +223,23 @@ export class ExpenseList {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            let endpoint;
-            switch(type) {
-                case 'profits':
-                    endpoint = `http://localhost:3000/api/v1/month/profits/${id}`;
-                    break;
-                case 'promotions':
-                    endpoint = `http://localhost:3000/api/v1/month/expenses/promotions/${id}`;
-                    break;
-                case 'orgs':
-                    endpoint = `http://localhost:3000/api/v1/month/expenses/orgs/${id}`;
-                    break;
-                case 'investitions':
-                    endpoint = `http://localhost:3000/api/v1/month/expenses/investitions/${id}`;
-                    break;
-                default:
-                    console.error('Неизвестный тип записи');
-                    return;
-            }
-
-            const response = await fetch(endpoint, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.ok) {
-                const year = this.container.querySelector('#yearInput').value;
-                const month = this.container.querySelector('#monthInput').value;
-                this.loadExpenses();
-            } else {
-                console.error('Ошибка при удалении записи:', await response.json());
-            }
+            if (type === 'profits') {
+                await API.deleteProfit(id);
+            } else if (type === 'promotions' || type === 'orgs' || type === 'investitions') {
+                await API.deleteExpense(type, id);
+            } 
+            await this.loadExpenses();
         } catch (error) {
-            console.error('Ошибка при отправке запроса на удаление:', error);
+            console.error('Ошибка при удалении записи:', error);
         }
     }
 
     async fetchAndDisplayTaxes(year, month) {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/taxes/${year}/${month}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                this.displayTaxes(data);
-            } else {
-                console.error('Ошибка при получении налогов:', data);
-            }
+            const data = await API.getTaxes(year, month);
+            this.displayTaxes(data);
         } catch (error) {
-            console.error('Ошибка при запросе налогов:', error);
+            console.error('Ошибка при получении налогов:', error);
         }
     }
 
@@ -356,32 +278,12 @@ export class ExpenseList {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/taxes/${year}/${month}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.ok) {
-                const table = this.container.querySelector('#taxesTable');
-                table.innerHTML = `
-                    <tr>
-                        <th>Дата</th>
-                        <th>Сумма</th>
-                        <th>Действия</th>
-                    </tr>
-                `;
-                
-                const currentYear = this.container.querySelector('#yearInput').value;
-                const currentMonth = this.container.querySelector('#monthInput').value;
-                await this.fetchAndDisplayTaxes(currentYear, currentMonth);
-            } else {
-                console.error('Ошибка при удалении налога:', await response.json());
-            }
+            await API.deleteTax(year, month);
+            const currentYear = this.container.querySelector('#yearInput').value;
+            const currentMonth = this.container.querySelector('#monthInput').value;
+            await this.fetchAndDisplayTaxes(currentYear, currentMonth);
         } catch (error) {
-            console.error('Ошибка при отправке запроса на удаление налога:', error);
+            console.error('Ошибка при удалении налога:', error);
         }
     }
 }

@@ -1,3 +1,5 @@
+import { API } from '../config/api.js';
+
 export class SummaryTable {
     constructor(container) {
         this.container = container;
@@ -43,50 +45,6 @@ export class SummaryTable {
                         </tr>
                     </tfoot>
                 </table>
-                <div class="social-stats">
-                    <h2 class="social-stats__title">Статистика социальных сетей</h2>
-                    <div class="social-stats__tables">
-                        <div class="social-stats__table">
-                            <h3>ВКонтакте</h3>
-                            <table id="vkTable" class="summary-table__content">
-                                <thead>
-                                    <tr>
-                                        <th>Дата</th>
-                                        <th>Количество</th>
-                                        <th>Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                        <div class="social-stats__table">
-                            <h3>Telegram</h3>
-                            <table id="telegramTable" class="summary-table__content">
-                                <thead>
-                                    <tr>
-                                        <th>Дата</th>
-                                        <th>Количество</th>
-                                        <th>Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                        <div class="social-stats__table">
-                            <h3>Чаты</h3>
-                            <table id="chatsTable" class="summary-table__content">
-                                <thead>
-                                    <tr>
-                                        <th>Дата</th>
-                                        <th>Количество</th>
-                                        <th>Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
         `;
         this.container.innerHTML = summaryTableHTML;
@@ -98,190 +56,112 @@ export class SummaryTable {
 
     async loadSummaryData() {
         const year = this.container.querySelector('#yearSelector').value;
-        const month = new Date().getMonth() + 1; 
 
         try {
-            const token = localStorage.getItem('token');
-            const summaryResponse = await fetch(`http://localhost:3000/api/v1/summary/${year}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const summaryData = await summaryResponse.json();
-			console.log(summaryData)
-
-            if (summaryResponse.ok) {
-                this.displaySummaryData(summaryData.data);
-            }
-
-            await Promise.all([
-                this.loadSocialStats('vk', year, month),
-                this.loadSocialStats('telegram', year, month),
-                this.loadSocialStats('chats', year, month)
-            ]);
+            const summaryData = await API.getSummaryTable(year);
+            this.displaySummaryData(summaryData.data);
         } catch (error) {
             console.error('Ошибка при загрузке данных:', error);
         }
     }
 
-    async loadSocialStats(socnet, year, month) {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/social_stats/${socnet}/${year}/${month}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                this.displaySocialStats(socnet, data);
-            } else {
-                console.error(`Ошибка при получении данных ${socnet}:`, data);
-            }
-        } catch (error) {
-            console.error(`Ошибка при запросе данных ${socnet}:`, error);
-        }
-    }
-
-    displaySocialStats(socnet, data) {
-        const table = this.container.querySelector(`#${socnet}Table tbody`);
-        
-        table.innerHTML = data.map(stat => `
-            <tr>
-                <td>${new Date(stat.date).toLocaleDateString()}</td>
-                <td>${stat.count}</td>
-                <td>
-                    <button class="edit-button" data-id="${stat.id}" data-socnet="${socnet}">
-                        ✏️
-                    </button>
-                    <button class="delete-button" data-id="${stat.id}" data-socnet="${socnet}">
-                        🗑️
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-
-        table.querySelectorAll('.edit-button').forEach(button => {
-            button.addEventListener('click', () => this.editSocialStat(button.dataset.socnet, button.dataset.id));
-        });
-
-        table.querySelectorAll('.delete-button').forEach(button => {
-            button.addEventListener('click', () => this.deleteSocialStat(button.dataset.socnet, button.dataset.id));
-        });
-    }
-
-    async editSocialStat(socnet, id) {
-        const newCount = prompt('Введите новое количество:');
-        if (newCount === null) return;
-
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/social_stats/${socnet}/${id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    count: parseInt(newCount)
-                })
-            });
-
-            if (response.ok) {
-                const year = this.container.querySelector('#yearSelector').value;
-                const month = new Date().getMonth() + 1;
-                await this.loadSocialStats(socnet, year, month);
-            } else {
-                console.error('Ошибка при обновлении данных');
-            }
-        } catch (error) {
-            console.error('Ошибка при отправке запроса:', error);
-        }
-    }
-
-    async deleteSocialStat(socnet, id) {
-        if (!confirm('Вы уверены, что хотите удалить эту запись?')) {
-            return;
-        }
-
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/v1/social_stats/${socnet}/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.ok) {
-                const year = this.container.querySelector('#yearSelector').value;
-                const month = new Date().getMonth() + 1;
-                await this.loadSocialStats(socnet, year, month);
-            } else {
-                console.error('Ошибка при удалении данных');
-            }
-        } catch (error) {
-            console.error('Ошибка при отправке запроса:', error);
-        }
-    }
-
     displaySummaryData(data) {
         const tbody = this.container.querySelector('#summaryTableBody');
-        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
-                          'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        const monthNames = [
+            'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
         
-        let totals = {
-            turnover: 0, profit: 0, amountOfEvents: 0, amountOfHumanActivities: 0,
-            amountOfNewHumanActivities: 0, promotion: 0, org: 0, netIncome: 0,
-            investitions: 0, tax: 0, total: 0
-        };
-
+        const totals = this.initializeTotals();
+        
         tbody.innerHTML = monthNames.map((monthName, index) => {
-            const monthData = data[index + 1] || {
-                turnover: 0, profit: 0, marginality: 0, amountOfEvents: 0,
-                amountOfHumanActivities: 0, amountOfNewHumanActivities: 0,
-                averageCheck: 0, ch: 0, promotion: 0, org: 0, netIncome: 0,
-                investitions: 0, tax: 0, total: 0
-            };
-
-
-            Object.keys(totals).forEach(key => {
-                totals[key] += monthData[key] || 0;
-            });
-
-            return `
-                <tr>
-                    <td>${monthName}</td>
-                    <td>${monthData.turnover || 0}</td>
-                    <td>${monthData.profit || 0}</td>
-                    <td>${(monthData.marginality * 100 || 0).toFixed(1)}%</td>
-                    <td>${monthData.amountOfEvents || 0}</td>
-                    <td>${monthData.amountOfHumanActivities || 0}</td>
-                    <td>${monthData.amountOfNewHumanActivities || 0}</td>
-                    <td>${Math.round(monthData.averageCheck) || 0}</td>
-                    <td>${Math.round(monthData.ch) || 0}</td>
-                    <td>${monthData.promotion || 0}</td>
-                    <td>${monthData.org || 0}</td>
-                    <td>${monthData.netIncome || 0}</td>
-                    <td>${monthData.investitions || 0}</td>
-                    <td>${monthData.tax || 0}</td>
-                    <td>${monthData.total || 0}</td>
-                </tr>
-            `;
+            const monthData = this.getMonthData(data, index + 1);
+            this.updateTotals(totals, monthData);
+            return this.createMonthRow(monthName, monthData);
         }).join('');
 
+        this.updateFooter(totals);
+    }
+
+    initializeTotals() {
+        return {
+            turnover: 0,
+            profit: 0,
+            amountOfEvents: 0,
+            amountOfHumanActivities: 0,
+            amountOfNewHumanActivities: 0,
+            promotion: 0,
+            org: 0,
+            netIncome: 0,
+            investitions: 0,
+            tax: 0,
+            total: 0
+        };
+    }
+
+    getMonthData(data, monthIndex) {
+        return data[monthIndex] || {
+            turnover: 0,
+            profit: 0,
+            marginality: 0,
+            amountOfEvents: 0,
+            amountOfHumanActivities: 0,
+            amountOfNewHumanActivities: 0,
+            averageCheck: 0,
+            ch: 0,
+            promotion: 0,
+            org: 0,
+            netIncome: 0,
+            investitions: 0,
+            tax: 0,
+            total: 0
+        };
+    }
+
+    updateTotals(totals, monthData) {
+        Object.keys(totals).forEach(key => {
+            totals[key] += monthData[key] || 0;
+        });
+    }
+
+    createMonthRow(monthName, data) {
+        return `
+            <tr>
+                <td>${monthName}</td>
+                <td>${data.turnover || 0}</td>
+                <td>${data.profit || 0}</td>
+                <td>${(data.marginality * 100 || 0).toFixed(1)}%</td>
+                <td>${data.amountOfEvents || 0}</td>
+                <td>${data.amountOfHumanActivities || 0}</td>
+                <td>${data.amountOfNewHumanActivities || 0}</td>
+                <td>${Math.round(data.averageCheck) || 0}</td>
+                <td>${Math.round(data.ch) || 0}</td>
+                <td>${data.promotion || 0}</td>
+                <td>${data.org || 0}</td>
+                <td>${data.netIncome || 0}</td>
+                <td>${data.investitions || 0}</td>
+                <td>${data.tax || 0}</td>
+                <td>${data.total || 0}</td>
+            </tr>
+        `;
+    }
+
+    updateFooter(totals) {
         const tfoot = this.container.querySelector('#summaryTableFooter');
+        const averageCheck = Math.round(totals.turnover / totals.amountOfHumanActivities) || 0;
+        const averageProfit = Math.round(totals.profit / totals.amountOfHumanActivities) || 0;
+        const totalMarginality = ((totals.profit / totals.turnover) * 100 || 0).toFixed(1);
+
         tfoot.innerHTML = `
             <td>ИТОГО</td>
             <td>${totals.turnover}</td>
             <td>${totals.profit}</td>
-            <td>${((totals.profit / totals.turnover) * 100 || 0).toFixed(1)}%</td>
+            <td>${totalMarginality}%</td>
             <td>${totals.amountOfEvents}</td>
             <td>${totals.amountOfHumanActivities}</td>
             <td>${totals.amountOfNewHumanActivities}</td>
-            <td>${Math.round(totals.turnover / totals.amountOfHumanActivities) || 0}</td>
-            <td>${Math.round(totals.profit / totals.amountOfHumanActivities) || 0}</td>
+            <td>${averageCheck}</td>
+            <td>${averageProfit}</td>
             <td>${totals.promotion}</td>
             <td>${totals.org}</td>
             <td>${totals.netIncome}</td>
