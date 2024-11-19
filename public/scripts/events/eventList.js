@@ -19,7 +19,8 @@ export class EventList {
                             <th class="event-list__table-header">Дата</th>
                             <th class="event-list__table-header">Количество клиентов</th>
                             <th class="event-list__table-header">Количество расходов</th>
-                            <th class="event-list__table-header">Действия</th>
+                            <th class="event-list__table-header">Удалить</th>
+                            <th class="event-list__table-header">Скачать</th>
                         </tr>
                     </thead>
                     <tbody class="event-list__table-body" id="eventTableBody"></tbody>
@@ -58,6 +59,11 @@ export class EventList {
                 <td class="event-list__table-cell">
                     <button class="delete-event" data-event-id="${event.id}">Удалить</button>
                 </td>
+				<td class="event-list__table-cell">
+                    <button class="download-clients" data-event-id="${event.id}">
+                        <i class="fas fa-download"></i> Скачать список
+                    </button>
+                </td>
             `;
             row.addEventListener('click', () => this.showEventDetails(event));
             this.eventTableBody.appendChild(row);
@@ -68,6 +74,13 @@ export class EventList {
                 e.stopPropagation();
                 const eventId = button.dataset.eventId;
                 this.deleteEvent(eventId);
+            });
+        });
+
+        this.eventTableBody.querySelectorAll('.download-clients').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const eventId = button.dataset.eventId;
+                this.downloadClientsList(eventId);
             });
         });
     }
@@ -81,15 +94,25 @@ export class EventList {
         }
     }
 
+    async downloadClientsList(eventId) {
+        try {
+            window.open(`http://localhost:3000/api/v1/events/${eventId}/clients/download`, '_blank');
+        } catch (error) {
+            console.error('Ошибка при скачивании списка клиентов:', error);
+        }
+    }
+
     async showEventDetails(event) {
-        const clientsList = await Promise.all(event.clients.map(async (client) => {
-            const clientData = await this.fetchClientData(client.id);
+        const clientsList = event.clients.map(client => {
             return `<li>
                 <a href="#" class="client-link" data-client-id="${client.id}">
-                    ${clientData.name} ${clientData.surname} - ${client.deposit}
+                    ${client.fullname} - ${client.amount_of_payment}₽
+                    ${client.discount_percent > 0 ? 
+                        `<span class="discount-info">(Скидка: ${client.discount_percent}% - ${client.discount_description})</span>` 
+                        : ''}
                 </a>
             </li>`;
-        }));
+        });
 
         const expensesList = event.expenses.map(expense => 
             `<li>
@@ -101,15 +124,25 @@ export class EventList {
             <h2 class="event-list__details-title">Детали мероприятия</h2>
             <p><strong>Название:</strong> ${event.name}</p>
             <p><strong>Дата:</strong> ${event.date.year}.${event.date.month}.${event.date.day}</p>
+            <p><strong>Тип:</strong> ${event.type} </p>
             <h3>Клиенты:</h3>
-            <ul>${clientsList.join('') || '<li>Нет клиентов</li>'}</ul>
+            <ul class="clients-list">${clientsList.join('') || '<li>Нет клиентов</li>'}</ul>
             <h3>Расходы:</h3>
             <ul>${expensesList || '<li>Нет расходов</li>'}</ul>
             <h3>Добавить клиента:</h3>
             <div class="add-client-form">
-                <input type="text" id="clientName" placeholder="Имя клиента" required />
-                <input type="text" id="clientSurname" placeholder="Фамилия клиента" required />
-                <input type="number" id="clientDeposit" placeholder="Депозит" required step="0.01" />
+                <input type="text" id="clientName" placeholder="Фамилия Имя" required />
+                <input type="number" id="clientDeposit" placeholder="Сумма оплаты" required step="0.01" />
+                <input type="number" 
+                       id="discountPercent" 
+                       placeholder="Процент скидки" 
+                       min="0" 
+                       max="100" 
+                       step="1" 
+                       value="0" />
+                <input type="text" 
+                       id="discountDescription" 
+                       placeholder="Причина скидки" />
                 <button id="addClientButton" data-event-id="${event.id}">Добавить клиента</button>
             </div>
             <h3>Добавить расход:</h3>
@@ -124,21 +157,27 @@ export class EventList {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const clientId = e.target.dataset.clientId;
-                this.showClientDetails(clientId);
+                this.showClientDetails(clientId, event.id);
             });
         });
 
         this.eventDetails.querySelector('#addClientButton').addEventListener('click', () => {
-            const name = document.getElementById('clientName').value;
-            const surname = document.getElementById('clientSurname').value;
-            const deposit = document.getElementById('clientDeposit').value;
+            const fullname = document.getElementById('clientName').value;
+            const amount_of_payment = document.getElementById('clientDeposit').value;
+            const discount_percent = document.getElementById('discountPercent').value || "0";
+            const discount_description = document.getElementById('discountDescription').value || "";
             
-            if (!name || !surname || !deposit) {
-                alert('Пожалуйста, заполните все поля для клиента');
+            if (!fullname) {
+                alert('Пожалуйста, заполните поле фио');
                 return;
             }
             
-            this.addClientToEvent(event.id, { name, surname, deposit });
+            this.addClientToEvent(event.id, { 
+                fullname, 
+                amount_of_payment,
+                discount_percent,
+                discount_description
+            });
         });
 
         this.eventDetails.querySelector('#addExpenseButton').addEventListener('click', () => {
@@ -156,9 +195,10 @@ export class EventList {
     async addClientToEvent(eventId, clientData) {
         try {
             await API.addClientToEvent(eventId, {
-                name: clientData.name,
-                surname: clientData.surname,
-                deposit: clientData.deposit
+                fullname: clientData.fullname,
+                amount_of_payment: clientData.amount_of_payment,
+                discount_percent: clientData.discount_percent,
+                discount_description: clientData.discount_description
             });
             await this.fetchEvents();
             this.showEventDetails(this.events.find(event => event.id === eventId));
@@ -201,15 +241,35 @@ export class EventList {
         };
     }
 
-    async showClientDetails(clientId) {
+    async showClientDetails(clientId, eventId) {
         const clientData = await this.fetchClientData(clientId);
         
         const clientDetailsHTML = `
             <div class="client-details">
                 <h3>Информация о клиенте</h3>
-                <p><strong>Имя:</strong> ${clientData.name}</p>
-                <p><strong>Фамилия:</strong> ${clientData.surname}</p>
+                <p><strong>ФИО:</strong> ${clientData.fullname}</p>
                 <p><strong>Дата:</strong> ${clientData.year}.${clientData.month}.${clientData.day}</p>
+                
+                <div class="update-payment-form">
+                    <h4>Обновить информацию об оплате</h4>
+                    <input type="number" 
+                           id="updatePayment" 
+                           placeholder="Сумма оплаты" 
+                           step="0.01" 
+                           value="${clientData.amount_of_payment || ''}" />
+                    <input type="number" 
+                           id="updateDiscount" 
+                           placeholder="Процент скидки" 
+                           min="0" 
+                           max="100" 
+                           step="1" 
+                           value="${clientData.discount_percent || 0}" />
+                    <input type="text" 
+                           id="updateDiscountDescription" 
+                           placeholder="Причина скидки" 
+                           value="${clientData.discount_description || ''}" />
+                    <button class="update-client-button">Обновить данные</button>
+                </div>
             </div>
         `;
 
@@ -224,8 +284,33 @@ export class EventList {
 
         document.body.appendChild(modal);
 
+        modal.querySelector('.update-client-button').addEventListener('click', async () => {
+            const amount_of_payment = modal.querySelector('#updatePayment').value;
+            const discount_percent = modal.querySelector('#updateDiscount').value;
+            const discount_description = modal.querySelector('#updateDiscountDescription').value;
+
+            await this.updateClient(eventId, clientId, {
+                amount_of_payment,
+                discount_percent,
+                discount_description
+            });
+
+            document.body.removeChild(modal);
+            await this.fetchEvents();
+            this.showEventDetails(this.events.find(event => event.id === eventId));
+        });
+
         modal.querySelector('.close-button').addEventListener('click', () => {
             document.body.removeChild(modal);
         });
+    }
+
+    async updateClient(eventId, clientId, updateData) {
+        try {
+            await API.updateClient(eventId, clientId, updateData);
+        } catch (error) {
+            console.error('Ошибка при обновлении данных клиента:', error);
+            alert('Ошибка при обновлении данных клиента');
+        }
     }
 }

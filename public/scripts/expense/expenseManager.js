@@ -22,12 +22,12 @@ export class ExpenseManager {
                         </form>
                     </div>
                     <div class="expense-form">
-                        <h2 class="expense-form__title">Оргасходы</h2>
+                        <h2 class="expense-form__title">Орграсходы</h2>
                         <form id="orgForm">
                             <input type="date" id="orgsDate" required>
                             <input type="text" id="orgsName" placeholder="Название" required>
                             <input type="number" id="orgsAmount" placeholder="Сумма" required>
-                            <button type="submit">Добавить оргасход</button>
+                            <button type="submit">Добавить орграсход</button>
                         </form>
                     </div>
                     <div class="expense-form">

@@ -42,6 +42,10 @@ export class API {
         return this.request(`/month/events/${year}/${month}`);
     }
 
+	static async downloadClients(eventId) {
+        return this.request(`/events/${eventId}/clients/download`);
+    }
+
     static async createEvent(eventData) {
         return this.request('/events', {
             method: 'POST',
@@ -183,6 +187,13 @@ export class API {
     static async deleteClient(clientId) {
         return this.request(`/clients/${clientId}`, {
             method: 'DELETE'
+        });
+    }
+
+    static async updateClient(eventId, clientId, updateData) {
+        return this.request(`/events/${eventId}/clients/${clientId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(updateData)
         });
     }
 } 

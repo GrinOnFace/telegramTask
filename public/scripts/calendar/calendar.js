@@ -1,14 +1,16 @@
+import { API } from '../config/api.js';
+
 export class Calendar {
     constructor(container) {
         this.container = container;
         this.currentDate = new Date();
         this.weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
         this.months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-        this.events = []; 
+        this.events = [];
 
         this.createCalendarStructure();
         this.addEventListeners();
-        this.render();
+        this.fetchEvents();
     }
 
     createCalendarStructure() {
@@ -78,8 +80,11 @@ export class Calendar {
                 dateElement.classList.add('today');
             }
 
-            dateElement.addEventListener('click', () => this.selectDate(i));
+            if (this.hasEventOnDate(i)) {
+                dateElement.classList.add('has-event');
+            }
 
+            dateElement.addEventListener('click', () => this.selectDate(i));
             this.datesElement.appendChild(dateElement);
         }
     }
@@ -95,11 +100,47 @@ export class Calendar {
         const selectedDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day);
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = selectedDate.toLocaleDateString('ru-RU', options);
-        this.selectedDateInfoElement.textContent = `Выбранная дата: ${formattedDate}`;
+        
+        const events = this.getEventsForDate(day);
+        let infoText = `Выбранная дата: ${formattedDate}`;
+        
+        if (events.length > 0) {
+            infoText += '\nМероприятия:\n' + events.map(event => `- ${event.name}`).join('\n');
+        }
+        
+        this.selectedDateInfoElement.innerHTML = infoText.replace(/\n/g, '<br>');
     }
 
-    changeMonth(change) {
+    async changeMonth(change) {
         this.currentDate.setMonth(this.currentDate.getMonth() + change);
-        this.render();
+        await this.fetchEvents();
+    }
+
+    async fetchEvents() {
+        try {
+            const response = await API.getEvents();
+            if (response.status === 'OK') {
+                this.events = response.data;
+                this.render();
+            }
+        } catch (error) {
+            console.error('Ошибка при получении мероприятий:', error);
+        }
+    }
+
+    hasEventOnDate(day) {
+        return this.events.some(event => {
+            return parseInt(event.date.year) === this.currentDate.getFullYear() &&
+                   parseInt(event.date.month) === (this.currentDate.getMonth() + 1) &&
+                   parseInt(event.date.day) === day;
+        });
+    }
+
+    getEventsForDate(day) {
+        return this.events.filter(event => {
+            return parseInt(event.date.year) === this.currentDate.getFullYear() &&
+                   parseInt(event.date.month) === (this.currentDate.getMonth() + 1) &&
+                   parseInt(event.date.day) === day;
+        });
     }
 }

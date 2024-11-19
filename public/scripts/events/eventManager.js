@@ -17,6 +17,12 @@ export class EventManager {
                         <input type="text" id="eventName" name="eventName" required>
                     </div>
                     <div class="form-group">
+                        <label for="eventType">Тип мероприятия:</label>
+                        <select id="eventType" name="eventType" required>
+                            ${Array.from({length: 20}, (_, i) => `<option value="тип${i + 1}">Тип${i + 1}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="eventDate">Дата мероприятия:</label>
                         <input type="date" id="eventDate" name="eventDate" required>
                     </div>
@@ -38,16 +44,16 @@ export class EventManager {
         e.preventDefault();
         const eventName = this.container.querySelector('#eventName').value;
         const eventDate = this.container.querySelector('#eventDate').value;
+        const eventType = this.container.querySelector('#eventType').value;
         
-        this.addEvent(eventName, eventDate);
+        this.addEvent(eventName, eventDate, eventType);
     }
 
-    async addEvent(name, date) {
+    async addEvent(name, date, type) {
         const eventData = {
             name: name,
             date: date,
-            clients: [],
-            expenses: []
+            type: type
         };
 
         try {

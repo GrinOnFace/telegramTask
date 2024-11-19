@@ -55,6 +55,7 @@
 .event-list__table-cell {
     padding: 10px;
     border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
 }
 
 .event-list__details {
@@ -238,7 +239,7 @@
     }
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 730px) {
     .event-list__table {
         display: block;
         overflow-x: auto;
@@ -297,4 +298,81 @@
         flex-direction: row;
         align-items: flex-end;
     }
+}
+
+.download-clients {
+    padding: 10px 12px;
+    background-color: #333333;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.download-clients:hover {
+    background-color: #222222;
+}
+
+.download-clients i {
+    margin-right: 5px;
+}
+
+.add-client-form input[type="number"]#discountPercent {
+    width: 150px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.add-client-form input[type="text"]#discountDescription {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.add-client-form input::placeholder {
+    color: #999;
+}
+
+.add-client-form input:focus {
+    outline: none;
+    border-color: #4A90E2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.update-payment-form {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.update-payment-form h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.update-payment-form input {
+    width: 96%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.update-client-button {
+    background-color: #333333;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.update-client-button:hover {
+    background-color: #222222;
 }

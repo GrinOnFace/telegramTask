@@ -64,3 +64,15 @@
     text-align: center;
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
+
+.date.has-event {
+    background-color: #444444;
+    border: 2px solid #222222;
+	border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.date.has-event:hover {
+    background-color: #333333;
+}

@@ -39,7 +39,7 @@ export class ExpenseList {
                         <table id="promotionsTable"></table>
                     </div>
                     <div class="expense-table">
-                        <h2>Оргасходы</h2>
+                        <h2>Орграсходы</h2>
                         <table id="orgsTable"></table>
                     </div>
                     <div class="expense-table">
